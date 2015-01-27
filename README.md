@@ -143,9 +143,9 @@ LeetCode C++ solutions.
 
 97 [Interleaving String](./src/InterleavingString.cpp)
 
-96 [Unique Binary Search Trees II](./src/UniqueBinarySearchTrees.cpp)
+96 [Unique Binary Search Trees II](./src/UniqueBinarySearchTreesII.cpp)
 
-95 [Unique Binary Search Trees](./src/UniqueBinarySearchTreesII.cpp)
+95 [Unique Binary Search Trees](./src/UniqueBinarySearchTrees.cpp)
 
 94 [Binary Tree Inorder Traversal](./src/BinaryTreeInorderTraversal.cpp)
 
