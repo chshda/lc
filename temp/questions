@@ -1,0 +1,10 @@
+1. 正难则反
+2. sscanf(s.c_str(), "R%dC%d", &r, &c)
+
+1. 数组划分成3个和相等的子数组的分法数：https://codeforces.com/problemset/problem/466/C
+2. 给出K-Tree，每个结点都有K个孩子，每个孩子的权重各为1,2,...,K，问现有多少条路径，使从根节点出发到某个结点所经过的边权重之和恰为n，且经过的边至少有一条权重不小于d：https://codeforces.com/problemset/problem/431/C
+3. 01序列，问长度在[a,b]之间的有多少种的序列，满足其中的1成段出现(长度为k)：https://codeforces.com/problemset/problem/474/D
+4. 长为2^n的数组，两两做或，然后两两异或，交替进行直至剩下一个元素。m次更新，每次替换某个位置的数再输出更新后的答案。https://codeforces.com/problemset/problem/339/D
+5. 一个数组的子数组的和等于长度的话成为good array，问给定数组中有多少个good array。https://codeforces.com/problemset/problem/1398/C
+6. nxm迷宫，有空白和墙，空白的部分连通，要求把k个空白的填成墙剩下的空白还连通，求这些修改的空白的位置。https://codeforces.com/problemset/problem/377/A
+
