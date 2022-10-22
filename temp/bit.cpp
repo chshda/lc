@@ -8,8 +8,7 @@
  * 比如c[6]，6的二进制为110，去掉最低位1位100=4，所以c[6] = (4,6]的和 = a[5] + a[6]
  * 
  * https://oi-wiki.org/ds/fenwick/
-*/
-
+ **/
 void bit(int n) {
     int c[n+1];  // 数组下标从1开始
 
