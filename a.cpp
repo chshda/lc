@@ -72,6 +72,9 @@ void bin1(int l, int r) {
     }
 }
 
+// 子集枚举
+for (int s = i; s; s = (s - 1) & i)
+
 // 优先队列 - 比较函数里优先值高的会尽量被保存在队里，优先值低的会被先pop掉
 auto cmp = [&](psi &a, psi &b) { return a.second > b.second || (a.second == b.second && a < b); };
 priority_queue<psi, vector<psi>, decltype(cmp)> q(cmp);
