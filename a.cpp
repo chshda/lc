@@ -244,6 +244,37 @@ int kmp(string t, string p) {
     }
     return j == m ? i - j : -1;
 }
+
+
+// segment tree
+// https://leetcode.cn/problems/longest-increasing-subsequence-ii/solutions/1816257/zhi-yu-xian-duan-shu-pythonjavacgo-by-en-p1gz/
+int lengthOfLIS(vector<int>& a, int k) {
+    vector<int> tr;
+
+    function<void(int, int, int, int, int, int)> modify = [&](int p, int l, int r, int L, int R, int v) {
+        if (l == r) { tr[p] = v; return; }
+        int m = l + r >> 1, lc = p << 1, rc = lc | 1;
+        if (L <= m) modify(lc, l, m, L, R, v);
+        if (R > m) modify(rc, m + 1, r, L, R, v);
+        tr[p] = max(tr[lc], tr[rc]);
+    };
+
+    function<int(int, int, int, int, int)> query = [&](int p, int l, int r, int L, int R) {
+        if (L <= l && r <= R) return tr[p];
+        int m = l + r >> 1, lc = p << 1, rc = lc | 1, ans = 0;
+        if (L <= m) ans = query(lc, l, m, L, R);
+        if (R > m) ans = max(ans, query(rc, m + 1, r, L, R));
+        return ans;
+    };
+
+    int mx = *max_element(a.begin(), a.end());
+    tr.resize(mx * 4);
+    for (auto i : a) {            
+        int res = i == 1 ? 1 : 1 + query(1, 1, mx, max(i-k, 1), i - 1);
+        modify(1, 1, mx, i, i, res);
+    }
+    return tr[1];
+}
     
 // Trie树
 // class Trie {
