@@ -37,12 +37,13 @@ lower_bound和upper_bound
     
 lower_bound中cmp本类型出现在第一个参数（目标类型在第二个参数），upper_bound中cmp出现在第二个参数，即lower第一，upper第二
         
-// accumulate(a.begin(), a.end(), 0);
+// 求和
+accumulate(a.begin(), a.end(), 0);
+accumulate(a.begin(), a.end(), 0, [](int total, string s) { return total + s.size() + 1；});
+
 // iota(a.begin(), a.end(), 0);
 // *max_element(a.begin(), a.end());
-//
-// auto f = [](int total, string s) { return total + s.size() + 1; ;
-// accumulate(a.begin(), a.end(), 0, f);
+
 
 // lower_bound(a.begin(), a.end(), x);
 // lower_bound(a.begin(), a.end(), x, [&](auto &a, int v) { return a[0] < v; });
@@ -52,16 +53,14 @@ lower_bound中cmp本类型出现在第一个参数（目标类型在第二个参
 // unordered_set<int> s(a.begin(), a.end());
 // for (auto &[k, v] : myMap) {}
 
-// function<int(int, int)> gcd = [&](auto &a, auto &b) { return b == 0 ? a : gcd(b, a % b); };
-
 // int a[n]; iota(a, a+n, 0);
 // int a[n]; memset(a, -1, sizeof(a)); // 0x3f
 
-// vector<int> nums; // 待离散化
-// vector<int> t = nums;
-// sort(t.begin(), t.end());
-// t.erase(unique(t.begin(), t.end()), t.end());
-// for (auto &i : nums) i = lower_bound(t.begin(), t.end(), i) - t.begin() + 1;
+vector<int> nums; // 待离散化
+vector<int> t = nums;
+sort(t.begin(), t.end());
+t.erase(unique(t.begin(), t.end()), t.end());
+for (auto &i : nums) i = lower_bound(t.begin(), t.end(), i) - t.begin() + 1;
 
 // 二分查找，[l, r]区间内满足条件的最小值
 void bin1(int l, int r) {
@@ -71,9 +70,6 @@ void bin1(int l, int r) {
         else l = m + 1;
     }
 }
-
-// 子集枚举
-for (int s = i; s; s = (s - 1) & i)
 
 // 优先队列 - 比较函数里优先值高的会尽量被保存在队里，优先值低的会被先pop掉
 auto cmp = [&](psi &a, psi &b) { return a.second > b.second || (a.second == b.second && a < b); };
