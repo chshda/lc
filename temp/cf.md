@@ -8,10 +8,7 @@ A有 $n$ 个数，B有 $m$ 个数，轮流进行 $k$ 次操作，每次可以选
 
 ```cpp
 void solve(int tc) {
-    int n, m, k; cin >> n >> m >> k;
-    vector<int> a(n), b(m);
-    for (int i = 0; i < n; i++) cin >> a[i];
-    for (int i = 0; i < m; i++) cin >> b[i];
+    int n, m, k; vector<int> a(n), b(m);
 
     int mna = 0, mxb = 0;
     for (int i = 1; i < n; i++) if (a[i] < a[mna]) mna = i;
