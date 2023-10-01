@@ -25,3 +25,21 @@ void solve(int tc) {
     cout << accumulate(a.begin(), a.end(), 0LL) << endl;
 }
 ```
+
+## [Jellyfish and Green Apple](https://codeforces.com/contest/1875/problem/C)
+
+n个1kg的苹果m个人平均分，每切一刀可以把一块苹果平均分成两份，最少切几刀可以完成分配。
+
+当 $n>=m$ 时可以不断每人分一个苹果直到 $n<m$，然后每人拿到 $n/m$ 重的苹果。因为切割后的苹果重量只能是 $1/2^i$，约分后的m必须是2的整数幂，否则无解。
+
+约分后的 $n/m$，把 n 拆开2进制表示，写成多个分子为1的分数的和，每个分数表示一小块苹果，于是1的数量则为每个人拿到的苹果的块数，乘以m为总块数，减去n为切的次数。
+
+```cpp
+void solve(int tc) {
+    int n, m; cin >> n >> m;
+    n %= m;
+    int a = n / gcd(n, m), b = m / gcd(n, m);
+    if (__builtin_popcount(b) > 1) cout << -1 << endl;
+    else cout << 1LL * m * __builtin_popcount(a) - n << endl;
+}
+```
