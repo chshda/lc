@@ -43,3 +43,30 @@ void solve(int tc) {
     else cout << 1LL * m * __builtin_popcount(a) - n << endl;
 }
 ```
+
+## [Jellyfish and Mex](https://codeforces.com/contest/1875/problem/D)
+
+n个数，执行n次操作，每次选一个数删掉，把剩下的数组的mex加进和里，求最小和。
+
+贪心DP。选小于mex的一个数，删到没有为止，再在剩下的数组里重复进行，DP。
+
+* dp[i]: [0,i]里取到的最小和
+* dp[i] = min(dp[j-1] + (cnt[j]-1) * (i+1) + j) (枚举j，j-1特判)
+
+```cpp
+void solve(int tc) {
+    int n; cin >> n;
+    vector<int> a(n);
+    for (int i = 0, t; i < n; i++) if (cin >> t, t < n) a[t]++;
+ 
+    int mex = 0;
+    while (mex < n && a[mex]) mex++;
+    if (mex == 0) { cout << 0 << endl; return; }
+ 
+    vector<int> dp(n, INT_MAX);
+    for (int i = 0; i < mex; i++) {
+        for (int j = 0; j <= i; j++) dp[i] = min(dp[i], (j-1<0 ? 0 : dp[j-1]) + (a[j]-1) * (i+1) + j);
+    }
+    cout << dp[mex-1] << endl;
+}
+```
