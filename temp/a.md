@@ -116,44 +116,6 @@ t.erase(unique(t.begin(), t.end()), t.end());
 for (auto &i : a) i = lower_bound(t.begin(), t.end(), i) - t.begin() + 1;
 ```
 
- **skleton**
-
-```cpp
-#include <bits/stdc++.h> 
-using namespace std; 
-
-typedef long long ll;
-typedef pair<int, int> pii;
-
-int init = []() { return 0; }();
-
-void solve(int tc) {} 
-
-int32_t main() {
-#ifdef LOCAL_PROJECT
-    freopen("data/in.txt", "r", stdin);
-    freopen("data/out.txt", "w", stdout);
-    freopen("data/error.txt", "w", stderr);
-#endif 
-    ios::sync_with_stdio(false); cin.tie(0); 
-    int tc; cin >> tc; for (int i = 1; i <= tc; i++) solve(i); 
-    return 0;
-}
-```
-
-**并查集**
-```cpp
-struct DisjoinSet {
-    vector<int> pa, size;
-    DisjoinSet(int n): pa(n), size(n, 1) { for (int i = 0; i < n; i++) pa[i] = i; }
-    int find(int x) { return pa[x] == x ? x : pa[x] = find(pa[x]); }
-    void unite(int x, int y) {
-        x = find(x), y = find(y);
-        if (x == y) return;
-        if (size[x] < size[y]) swap(x, y);
-        pa[y] = x; size[x] += size[y];
-};
-```
 
 
 
