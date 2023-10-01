@@ -9,6 +9,7 @@
                 "-g",
                 "${file}",
                 "-DLOCAL_PROJECT",
+                "-std=c++17",
                 "-o",
                 "${fileDirname}\\gen\\${fileBasenameNoExtension}.exe"
             ],
