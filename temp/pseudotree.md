@@ -9,6 +9,12 @@
 
 [https://leetcode.cn/problems/maximum-employees-to-be-invited-to-a-meeting/solutions/1187830/nei-xiang-ji-huan-shu-tuo-bu-pai-xu-fen-c1i1b/](https://leetcode.cn/problems/maximum-employees-to-be-invited-to-a-meeting/solutions/1187830/nei-xiang-ji-huan-shu-tuo-bu-pai-xu-fen-c1i1b/)
 
+通用处理方法：我们可以通过一次拓扑排序「剪掉」所有树枝，因为拓扑排序后，树枝节点的入度均为 0，基环节点的入度均为 1。这样就可以将基环和树枝分开，从而简化后续处理流程：
+
+* 遍历基环，从拓扑排序后入度为 1 的节点出发，在图上搜索。
+* 遍历树枝，以基环与树枝的连接处为起点，顺着反图来搜索树枝（搜索入度为 0 的节点），将问题转化成一个树形问题。
+
+
 ## [有向图访问计数](https://leetcode.cn/contest/weekly-contest-365/problems/count-visited-nodes-in-a-directed-graph/)
 
 内向基环树上每个点可以访问到的不同顶点个数。
