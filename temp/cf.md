@@ -70,3 +70,82 @@ void solve(int tc) {
     cout << dp[mex-1] << endl;
 }
 ```
+
+## [Jellyfish and Math](https://codeforces.com/contest/1875/problem/E)
+
+给定初始点(a,b)和整数m，移动规则为 a=a&b 或 a=a|b 或 b=a^b 或 b=b^m，问走到(c,d)的最小步数。
+
+移动规则为位运算，逐位考虑，对于第i位，(a, b, m) 的第i位，经过移动后要变成 (c, d) 的第i位。如果 (a, b, m) 的第i位和之前的某个第j位完全相同，则对应的 (c, d)的第j位也必须相同，因为他们运算的过程是一样的。
+
+对 (a, b, m) 的每一位的情况，去重后最多有8种可能的情况。映射后的 (c, d) 最多有4种情况，额外考虑不存在的情况使用5个状态表示。可以使用一个 $map<int,int>$ 把8种情况的每一种情况 映射到 5个状态中的一个。map可以简化为一个长为8的数组表示，进一步当做一个长为8的5进制数表示这个状态。
+
+有了状态怎么转移，使用刷表法，从小到大枚举状态，从不需要移动的状态出发（c/d和a/b一样），使用BFS，一次次移动，直到移不动为止。由于状态空间大小最多为 $5^8$，复杂度不会太高。
+
+```cpp
+using state = array<int, 8>;
+static const int N = pow(5, 8);
+vector<int> dp(N, -1);
+
+state decode(int x) {
+    state ans; for (int i = 0; i < 8; i++) ans[i] = 0;
+    int id = 0;
+    while (x) ans[id++] = x % 5, x /= 5;
+    return ans;
+}
+
+int encode(state s) {
+    int ans = 0;
+    for (int i = 7; i >= 0; i--) ans = ans * 5 + s[i];
+    return ans;
+}
+
+bool is_init_state(int x) {
+    auto s = decode(x);
+    for (int i = 0; i < 8; i++) if (s[i] != 4 && s[i] != (i >> 1)) return false;
+    return true;
+}
+
+int perform(int x, int op) {
+    state s = decode(x);
+    for (int i = 0; i < 8; i++) {
+        if (s[i] == 4) continue;
+        int m = i&1, c = s[i]>>1&1, d = s[i]&1;
+        if (op == 0) c &= d;
+        else if (op == 1) c |= d;
+        else if (op == 2) d ^= c;
+        else d ^= m;
+        s[i] = (c << 1) | d;
+    }
+    return encode(s);
+}
+
+void init() {
+    for (int i = 0; i < N; i++) {
+        if (dp[i] != -1 || !is_init_state(i)) continue;
+        dp[i] = 0;
+        queue<int> q; q.push(i);
+        while (!q.empty()) {
+            int x = q.front(); q.pop();
+            for (int op = 0; op < 4; op++) {
+                int y = perform(x, op);
+                if (dp[y] == -1) {
+                    dp[y] = dp[x] + 1; q.push(y);
+                } 
+            }
+        }
+    }
+}
+
+void solve(int tc) {
+    init();
+    int A, B, C, D, M; cin >> A >> B >> C >> D >> M;
+    state s; for (int i = 0; i < 8; i++) s[i] = 4;
+    for (int i = 0; i < 30; i++) {
+        int a = A>>i&1, b = B>>i&1, c = C>>i&1, d = D>>i&1, m = M>>i&1;
+        int id = (a << 2) | (b << 1) | m, val = (c << 1) | d;
+        if (s[id] != 4 && s[id] != val) { cout << -1 << endl; return; }
+        s[id] = val;
+    }
+    cout << dp[encode(s)] << endl;
+}
+```
