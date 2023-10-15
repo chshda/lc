@@ -33,56 +33,6 @@ inline ll lucas(ll n, ll m) {
     return lucas(n / mod, m / mod) * getC(n % mod, m % mod) % mod;
 }
 
-/**
- * 逆元
- *
- * 模意义下，1个数a如果有逆元x，那么除以a相当于乘以x。
- * 一个数有逆元的充分必要条件是gcd(a,p)=1，此时逆元唯一存在。
- **/
-
-/**
- * 费马小定理求逆元
- *
- * 如果p是质数，整数a不是p的倍数，则有a^(p-1) ≡ 1 (mod p)。
- * a的逆元为a^(p-2)，使用二分快速幂。
- **/
-ll quick_power(ll base, ll n) {
-    ll ans = 1;
-    while (n > 0) {
-        if (n & 1) ans = (ans * base) % mod;
-        base = (base * base) % mod;
-        n >>= 1;
-    }
-    return ans;
-}
-ll reverse_feimat(ll a) { return quick_power(a, mod - 2); }
-
-/**
- * 拓展欧几里得求逆元
- *
- * 拓展欧几里得：gcd(a,b) = a * x + b * y
- * 如果a,b互质，则gcd(a,b)=1，则ax+by=1。
- **/
-ll reverse_egcd(ll a) {
-    typedef function<ll(ll, ll, ll &, ll &)> fun;
-    fun egcd = [&](ll a, ll b, ll &x, ll &y) -> ll {
-        if (b == 0) {
-            x = 1, y = 0;
-            return a;
-        }
-        ll d = egcd(b, a % b, y, x);
-        y -= a / b * x;
-        return d;
-    };
-
-    ll x, y;
-    ll d = egcd(a, mod, x, y);
-    return d == 1 ? (x % mod + mod) % mod : -1;
-}
-
-/**
- * (TODO)欧拉定理求逆元
- **/
 
 /**
  * 阶乘逆元
