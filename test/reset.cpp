@@ -1,12 +1,10 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+#define int long long
 #ifdef LOCAL_PROJECT
 #include "local.h"
 #endif
-
-using ll = long long;
-using pii = pair<int, int>;
 
 void solve(int tc) {
     
