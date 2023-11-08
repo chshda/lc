@@ -3,13 +3,13 @@
         {
             "type": "cppbuild",
             "label": "C/C++: g++.exe build active file",
-            "command": "D:\\ProgramFiles\\minGw\\bin\\g++.exe",
+            "command": "D:\\Program Files\\msys2\\ucrt64\\bin\\g++.exe",
             "args": [
                 "-fdiagnostics-color=always",
                 "-g",
                 "${file}",
                 "-DLOCAL_PROJECT",
-                "-std=c++17",
+                "-std=c++2a",
                 "-o",
                 "${fileDirname}\\gen\\${fileBasenameNoExtension}.exe"
             ],
