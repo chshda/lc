@@ -1,7 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-#define int long long
 #ifdef LOCAL_PROJECT
 #include "local.h"
 #endif
