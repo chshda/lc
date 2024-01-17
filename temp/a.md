@@ -329,6 +329,33 @@ void f() {
 ```
 
  **数位DP (digit）**
+
+v2模板，闭区间[low, high]里面满足条件的数，不考虑前导0。
+```cpp
+using ll = long long;
+ll digitdp(string low, string high) {
+    int n = high.size();
+    low = string(n - low.size(), '0') + low;
+
+    vector<ll> mm(n);
+    function<ll(int, bool, bool)> dfs = [&](int i, bool limit_low, bool limit_high) -> ll {
+        if (i == n) return 1;
+        if (!limit_low && !limit_high && mm[i]) return mm[i];
+        
+        int lo = limit_low ? low[i] - '0' : 0;
+        int hi = limit_high ? high[i] - '0' : 9;
+
+        ll ans = 0;
+        for (int d = lo; d <= hi; d++) ans += dfs(i+1, limit_low && d==lo, limit_high && d==hi);
+
+        if (!limit_low && !limit_high) mm[i] = ans;
+        return ans;            
+    };
+    return dfs(0, true, true);
+}
+```
+
+
 状态：dp[i][x] - 前i位（从最高位开始算）当状态为x（比如最后一位的数字为x）时候的答案个数
 转移：1）当前不含数字时，可以继续不填数字，直接进入下一位，2）枚举下一位的满足条件的数字y，sum(dp[i+1][y])
 ```cpp
