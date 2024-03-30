@@ -126,6 +126,116 @@ public:
 };
 ```
 
+## 3083. 字符串及其反转中是否存在同一子字符串
+
+给你一个字符串 s ，请你判断字符串 s 是否存在一个长度为 2 的子字符串，在其反转后的字符串中也出现。
+如果存在这样的子字符串，返回 true；如果不存在，返回 false 。
+
+```cpp
+class Solution {
+public:
+    bool isSubstringPresent(string s) {
+        auto t = s;
+        ranges::reverse(t);
+        for (int i = 0; i < s.size()-1; i++) {
+            if (t.find(s.substr(i, 2)) != -1) return true;
+        }
+        return false;
+    }
+};
+```
+
+## 3084. 统计以给定字符开头和结尾的子字符串总数
+
+给你一个字符串 s 和一个字符 c 。返回在字符串 s 中并且以 c 字符开头和结尾的非空子字符串的总数。
+
+```cpp
+class Solution {
+public:
+    long long countSubstrings(string s, char c) {
+        long long k = ranges::count(s, c);
+        return k * (k + 1) / 2;
+    }
+};
+```
+
+## 3085. 成为 K 特殊字符串需要删除的最少字符数
+
+给你一个字符串 word 和一个整数 k。
+如果 |freq(word[i]) - freq(word[j])| <= k 对于字符串中所有下标 i 和 j  都成立，则认为 word 是 k 特殊字符串。
+此处，freq(x) 表示字符 x 在 word 中的出现频率，而 |y| 表示 y 的绝对值。
+返回使 word 成为 k 特殊字符串 需要删除的字符的最小数量。
+
+```cpp
+class Solution {
+public:
+    int minimumDeletions(string word, int k) {
+        int c[26]{};
+        for (auto i : word) c[i-'a']++;
+
+        int left = 0;
+        for (int i = 0; i < 26; i++) { // 枚举剩下的数里最小的那个
+            int sum = 0;
+            for (auto j : c) {
+                if (j >= c[i]) sum += min(j, c[i]+k);
+            }
+            left = max(left, sum);
+        }
+        return word.size() - left;
+    }
+};
+```
+
+## 3086. 拾起 K 个 1 需要的最少行动次数
+
+给你一个下标从 0 开始的二进制数组 nums，其长度为 n ；另给你一个 正整数 k 以及一个 非负整数 maxChanges 。
+
+Alice 在玩一个游戏，游戏的目标是让 Alice 使用 最少 数量的 行动 次数从 nums 中拾起 k 个 1 。游戏开始时，Alice 可以选择数组 [0, n - 1] 范围内的任何索引 aliceIndex 站立。如果 nums[aliceIndex] == 1 ，Alice 会拾起一个 1 ，并且 nums[aliceIndex] 变成0（这 不算 作一次行动）。之后，Alice 可以执行 任意数量 的 行动（包括零次），在每次行动中 Alice 必须 恰好 执行以下动作之一：
+
+选择任意一个下标 j != aliceIndex 且满足 nums[j] == 0 ，然后将 nums[j] 设置为 1 。这个动作最多可以执行 maxChanges 次。
+选择任意两个相邻的下标 x 和 y（|x - y| == 1）且满足 nums[x] == 1, nums[y] == 0 ，然后交换它们的值（将 nums[y] = 1 和 nums[x] = 0）。如果 y == aliceIndex，在这次行动后 Alice 拾起一个 1 ，并且 nums[y] 变成 0 。
+返回 Alice 拾起 恰好 k 个 1 所需的 最少 行动次数。
+
+```cpp
+using ll = long long;
+class Solution {
+public:
+    long long minimumMoves(vector<int>& nums, int k, int maxChanges) {
+        vector<int> pos;
+        int mx = 0, cur = 0, n = nums.size();
+        for (int i = 0; i < n; i++) {
+            if (nums[i] == 0) {
+                cur = 0;
+            } else {
+                cur += 1, mx = max(mx, cur);
+                pos.push_back(i);
+            }
+        }
+        mx = min(min(mx, 3), k); // 连续的1的长度，不超过3和k，这里的1可以快速获得
+        if (maxChanges >= k - mx) {
+            return (k - mx) * 2 + max(mx - 1, 0); // mx之外的1通过生成1再交换获得
+        }
+
+        n = pos.size();
+        vector<ll> pre(n+1);
+        for (int i = 1; i <= n; i++) pre[i] = pre[i-1] + pos[i-1];
+
+        ll ans = LLONG_MAX;
+        int len = k - maxChanges;
+        for (int st = 0; st < n; st++) { // 枚举区间，区间里的通过交换移动获得，剩下的通过生成1再交换获得
+            int ed = st + len - 1;
+            if (ed >= n) break;
+            int md = (st + ed) >> 1;
+            ll val = pos[md];
+            ll v1 = val * (md - st) - (pre[md+1] - pre[st]);
+            ll v2 = (pre[ed+1] - pre[md]) - val * (ed - md);
+            ans = min(ans, v1 + v2);
+        }
+        return ans + maxChanges * 2;
+    }
+};
+```
+
 ## 3090. 每个字符最多出现两次的最长子字符串
 
 给你一个字符串 s ，请找出满足每个字符最多出现两次的最长子字符串，并返回该子字符串的 最大 长度。
