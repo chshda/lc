@@ -1,5 +1,131 @@
 # 题解
 
+## 3074. 重新分装苹果
+
+给你一个长度为 n 的数组 apple 和另一个长度为 m 的数组 capacity 。
+一共有 n 个包裹，其中第 i 个包裹中装着 apple[i] 个苹果。同时，还有 m 个箱子，第 i 个箱子的容量为 capacity[i] 个苹果。
+请你选择一些箱子来将这 n 个包裹中的苹果重新分装到箱子中，返回你需要选择的箱子的 最小 数量。
+注意，同一个包裹中的苹果可以分装到不同的箱子中。
+
+```cpp
+class Solution {
+public:
+    int minimumBoxes(vector<int>& apple, vector<int>& capacity) {
+        int sum = accumulate(apple.begin(), apple.end(), 0);
+        ranges::sort(capacity, greater<>());
+        for (int i = 0; i < capacity.size(); i++) {
+            sum -= capacity[i];
+            if (sum <= 0) return i+1;
+        }
+        return -1;
+    }
+};
+```
+
+## 3075. 幸福值最大化的选择方案
+
+给你一个长度为 n 的数组 happiness ，以及一个 正整数 k 。
+n 个孩子站成一队，其中第 i 个孩子的 幸福值 是 happiness[i] 。你计划组织 k 轮筛选从这 n 个孩子中选出 k 个孩子。
+在每一轮选择一个孩子时，所有 尚未 被选中的孩子的 幸福值 将减少 1 。注意，幸福值 不能 变成负数，且只有在它是正数的情况下才会减少。
+选择 k 个孩子，并使你选中的孩子幸福值之和最大，返回你能够得到的 最大值 。
+
+```cpp
+using ll = long long;
+class Solution {
+public:
+    long long maximumHappinessSum(vector<int>& happiness, int k) {
+        ranges::sort(happiness, greater<>());
+        ll ans = 0;
+        for (int i = 0; i < k; i++) ans += max(happiness[i] - i, 0);
+        return ans;
+    }
+};
+```
+
+## 3076. 数组中的最短非公共子字符串
+
+给你一个数组 arr ，数组中有 n 个 非空 字符串。
+请你求出一个长度为 n 的字符串 answer ，满足：
+answer[i] 是 arr[i] 最短 的子字符串，且它不是 arr 中其他任何字符串的子字符串。如果有多个这样的子字符串存在，answer[i] 应该是它们中字典序最小的一个。如果不存在这样的子字符串，answer[i] 为空字符串。
+请你返回数组 answer 。
+
+```cpp
+class Solution {
+public:
+    vector<string> shortestSubstrings(vector<string>& arr) {
+        int n = arr.size();
+        auto ok = [&](int id, string s) {
+            for (int i = 0; i < n; i++) if (i != id) {
+                if (arr[i].find(s) != -1) return false;
+            }
+            return true;
+        };
+
+        vector<string> ans(n);
+        for (int i = 0; i < n; i++) {
+            string tans;
+            auto s = arr[i];
+            for (int len = 1; len <= s.size(); len++) {
+                for (int st = 0; st < s.size(); st++) {                    
+                    if (int ed = st + len - 1; ed >= s.size()) break;
+                    string sub = s.substr(st, len);
+                    if (ok(i, sub) && (tans.empty() || sub < tans)) tans = sub;
+                }
+                if (!tans.empty()) break;
+            }
+            ans[i] = tans;
+        }
+        return ans;
+    }
+};
+```
+
+## 3077. K 个不相交子数组的最大能量值
+
+给你一个长度为 n 下标从 0 开始的整数数组 nums 和一个 正奇数 整数 k 。
+x 个子数组的能量值定义为 strength = sum[1] * x - sum[2] * (x - 1) + sum[3] * (x - 2) - sum[4] * (x - 3) + ... + sum[x] * 1 ，其中 sum[i] 是第 i 个子数组的和。更正式的，能量值是满足 1 <= i <= x 的所有 i 对应的 (-1)^(i+1) * sum[i] * (x - i + 1) 之和。
+你需要在 nums 中选择 k 个 不相交子数组 ，使得 能量值最大 。
+请你返回可以得到的 最大能量值 。
+注意，选出来的所有子数组 不 需要覆盖整个数组。
+
+```cpp
+using ll = long long;
+class Solution {
+public:
+    long long maximumStrength(vector<int>& nums, int k) {
+        // 划分型DP，第一维度划分个数，第二维度前缀长度
+        // dp[i][j]，前j个数（0到j-1）取i个子数组 最大能量，i必须<= j
+        // dp[i][j] = max
+        //     第j个数不取：dp[i][j-1]
+        //     第j个数取，枚举这个区间左端点下标k取最大值 dp[i-1][k] + sum(k,j-1) * w
+        //               区间和转化为前缀和，pre(j) - pre(k)，pre下标1based
+        //               提取出不变量 pre[j]*w + max(dp[i-1][k] - pre[k]*w)
+        //               k取值范围 最大j-1只取一个数 最小i-1
+        //                        注意到这个范围下限不变，可以用一个变量存储最大值
+        //                              (假如下限也是单调递增变化，可以使用单调队列优化)
+        // 初始化 第一维度i递减 当i为0时 值为0，dp[0][*] = 0
+        //       第二维度j递减，边界条件dp[i][i-1]，不可能取到，为-oo
+        // w取值 符号 - i是奇数时为1否则为-1 权重-（不变量=划分下标+权重=1+k）= k+1-i
+        
+        int n = nums.size();      
+        vector<ll> pre(n+1);
+        for (int i = 1; i <= n; i++) pre[i] = pre[i-1] + nums[i-1];
+
+        vector<vector<ll>> f(k+1, vector<ll>(n+1));
+        for (int i = 1; i <= k; i++) {
+            f[i][i-1] = LLONG_MIN;
+            ll w = (i % 2 ? 1 : -1) * (k + 1 - i);
+            ll mx = LLONG_MIN;            
+            for (int j = i; j <= n; j++) {
+                mx = max(mx, f[i-1][j-1] - pre[j-1] * w);
+                f[i][j] = max(f[i][j-1], pre[j]*w + mx);
+            }
+        }
+        return f[k][n];
+    }
+};
+```
+
 ## 3090. 每个字符最多出现两次的最长子字符串
 
 给你一个字符串 s ，请找出满足每个字符最多出现两次的最长子字符串，并返回该子字符串的 最大 长度。
