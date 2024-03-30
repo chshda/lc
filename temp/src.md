@@ -1,5 +1,152 @@
 # 题解
 
+## 3069. 将元素分配到两个数组中 I
+
+给你一个下标从 1 开始、包含 不同 整数的数组 nums ，数组长度为 n 。
+你需要通过 n 次操作，将 nums 中的所有元素分配到两个数组 arr1 和 arr2 中。在第一次操作中，将 nums[1] 追加到 arr1 。在第二次操作中，将 nums[2] 追加到 arr2 。之后，在第 i 次操作中：
+如果 arr1 的最后一个元素 大于 arr2 的最后一个元素，就将 nums[i] 追加到 arr1 。否则，将 nums[i] 追加到 arr2 。
+通过连接数组 arr1 和 arr2 形成数组 result 。例如，如果 arr1 == [1,2,3] 且 arr2 == [4,5,6] ，那么 result = [1,2,3,4,5,6] 。
+返回数组 result 。
+
+```cpp
+class Solution {
+public:
+    vector<int> resultArray(vector<int>& nums) {
+        vector<int> a{nums[0]}, b{nums[1]};
+        for (int i = 2; i < nums.size(); i++) {
+            (a.back() > b.back() ? a : b).push_back(nums[i]);
+        }
+        a.insert(a.end(), b.begin(), b.end());
+        return a;
+    }
+};
+```
+
+## 3070. 元素和小于等于 k 的子矩阵的数目
+
+给你一个下标从 0 开始的整数矩阵 grid 和一个整数 k。
+返回包含 grid 左上角元素、元素和小于或等于 k 的 子矩阵 的数目。
+
+```cpp
+class Solution {
+public:
+    int countSubmatrices(vector<vector<int>>& grid, int k) {
+        int ans = 0, m = grid.size(), n = grid[0].size();
+        vector<vector<int>> pre(m+1, vector<int>(n+1));
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                pre[i+1][j+1] = grid[i][j] + pre[i+1][j] + pre[i][j+1] - pre[i][j];
+                ans += pre[i+1][j+1] <= k;
+            }   
+        }
+        return ans;
+    }
+};
+```
+
+3071. 在矩阵上写出字母 Y 所需的最少操作次数
+
+给你一个下标从 0 开始、大小为 n x n 的矩阵 grid ，其中 n 为奇数，且 grid[r][c] 的值为 0 、1 或 2 。
+
+如果一个单元格属于以下三条线中的任一一条，我们就认为它是字母 Y 的一部分：
+从左上角单元格开始到矩阵中心单元格结束的对角线。
+从右上角单元格开始到矩阵中心单元格结束的对角线。
+从中心单元格开始到矩阵底部边界结束的垂直线。
+
+当且仅当满足以下全部条件时，可以判定矩阵上写有字母 Y ：
+属于 Y 的所有单元格的值相等。
+不属于 Y 的所有单元格的值相等。
+属于 Y 的单元格的值与不属于Y的单元格的值不同。
+
+每次操作你可以将任意单元格的值改变为 0 、1 或 2 。返回在矩阵上写出字母 Y 所需的 最少 操作次数。
+
+```cpp
+class Solution {
+public:
+    int minimumOperationsToWriteY(vector<vector<int>>& grid) {
+        int n = grid.size(), m = n / 2;
+        auto ok = [&](int x, int y) {
+            if (x >= m) return y == m;
+            if (y <= m) return x == y;
+            return x + y == n-1;
+        };
+
+        auto f = [&](int n1, int n2) {
+            int ans = 0;
+            for (int i = 0; i < n; i++) for (int j = 0; j < n; j++) {
+                if (ok(i, j)) ans += grid[i][j] != n1;
+                else ans += grid[i][j] != n2;
+            }
+            return ans;
+        };
+
+        int ans = INT_MAX;
+        for (int i = 0; i <= 2; i++) for (int j = 0; j <= 2; j++) if (i != j) ans = min(ans, f(i, j));
+        return ans;        
+    }
+};
+```
+
+## 3072. 将元素分配到两个数组中 II
+
+给你一个下标从 1 开始、长度为 n 的整数数组 nums 。
+
+现定义函数 greaterCount ，使得 greaterCount(arr, val) 返回数组 arr 中 严格大于 val 的元素数量。
+
+你需要使用 n 次操作，将 nums 的所有元素分配到两个数组 arr1 和 arr2 中。在第一次操作中，将 nums[1] 追加到 arr1 。在第二次操作中，将 nums[2] 追加到 arr2 。之后，在第 i 次操作中：
+
+如果 greaterCount(arr1, nums[i]) > greaterCount(arr2, nums[i]) ，将 nums[i] 追加到 arr1 。
+如果 greaterCount(arr1, nums[i]) < greaterCount(arr2, nums[i]) ，将 nums[i] 追加到 arr2 。
+如果 greaterCount(arr1, nums[i]) == greaterCount(arr2, nums[i]) ，将 nums[i] 追加到元素数量较少的数组中。
+如果仍然相等，那么将 nums[i] 追加到 arr1 。
+连接数组 arr1 和 arr2 形成数组 result 。例如，如果 arr1 == [1,2,3] 且 arr2 == [4,5,6] ，那么 result = [1,2,3,4,5,6] 。
+
+返回整数数组 result 。
+
+```cpp
+class Bit {
+public:
+    Bit(int n): c(n + 1) {}
+    void update(int i, int val = 1) { while (i < c.size()) c[i] += val, i += i & -i ; }
+    int sum(int i) { int ans = 0; while (i) ans += c[i], i -= i & -i; return ans; }
+    int query(int l, int r) { return sum(r) - sum(l - 1); }
+
+private:
+    vector<int> c;    
+};
+
+class Solution {
+public:
+    vector<int> resultArray(vector<int>& nums) {
+        auto t = nums;
+        ranges::sort(t);
+        t.erase(unique(t.begin(), t.end()), t.end());
+
+        auto f = [&](int x) {
+            return lower_bound(t.begin(), t.end(), x) - t.begin() + 1;
+        };
+
+        int n = t.size();
+        vector<int> v1, v2;
+        Bit t1(n), t2(n);
+        v1.push_back(nums[0]), t1.update(f(nums[0]));
+        v2.push_back(nums[1]), t2.update(f(nums[1]));
+
+        for (int i = 2; i < nums.size(); i++) {
+            int v = f(nums[i]);
+            int c1 = t1.query(v+1, n), c2 = t2.query(v+1, n);
+            if (c1 > c2 || (c1 == c2 && (v1.size() <= v2.size()))) {
+                v1.push_back(nums[i]), t1.update(v);
+            } else {
+                v2.push_back(nums[i]), t2.update(v);
+            }
+        }
+        v1.insert(v1.end(), v2.begin(), v2.end());
+        return v1;
+    }
+};
+```
+
 ## 3074. 重新分装苹果
 
 给你一个长度为 n 的数组 apple 和另一个长度为 m 的数组 capacity 。
