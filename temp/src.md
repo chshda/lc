@@ -1,5 +1,122 @@
 # 题解
 
+## 3046. 分割数组
+
+给你一个长度为 偶数 的整数数组 nums 。你需要将这个数组分割成 nums1 和 nums2 两部分，要求：
+
+* nums1.length == nums2.length == nums.length / 2 。
+* nums1 应包含 互不相同 的元素。
+* nums2也应包含 互不相同 的元素。
+  
+如果能够分割数组就返回 true ，否则返回 false 。
+
+```cpp
+class Solution {
+public:
+    bool isPossibleToSplit(vector<int>& nums) {
+        map<int, int> m;
+        for (auto i : nums) if (++m[i] > 2) return false;
+        return true;
+    }
+};
+```
+
+## 3047. 求交集区域内的最大正方形面积
+
+在二维平面上存在 n 个矩形。给你两个下标从 0 开始的二维整数数组 bottomLeft 和 topRight，两个数组的大小都是 n x 2 ，其中 bottomLeft[i] 和 topRight[i] 分别代表第 i 个矩形的 左下角 和 右上角 坐标。
+
+我们定义 向右 的方向为 x 轴正半轴（x 坐标增加），向左 的方向为 x 轴负半轴（x 坐标减少）。同样地，定义 向上 的方向为 y 轴正半轴（y 坐标增加），向下 的方向为 y 轴负半轴（y 坐标减少）。
+
+你可以选择一个区域，该区域由两个矩形的 交集 形成。你需要找出能够放入该区域 内 的 最大 正方形面积，并选择最优解。
+
+返回能够放入交集区域的正方形的 最大 可能面积，如果矩形之间不存在任何交集区域，则返回 0。
+
+```cpp
+class Solution {
+public:
+    long long largestSquareArea(vector<vector<int>>& bottomLeft, vector<vector<int>>& topRight) {
+        long long ans = 0;
+        for (int i = 0; i < bottomLeft.size(); i++) {
+            auto &b1 = bottomLeft[i];
+            auto &t1 = topRight[i];
+            for (int j = i+1; j < bottomLeft.size(); j++) {
+                auto &b2 = bottomLeft[j];
+                auto &t2 = topRight[j];
+                long long w = min(t1[0], t2[0]) - max(b1[0], b2[0]);
+                long long h = min(t1[1], t2[1]) - max(b1[1], b2[1]);
+                if(w > 0 && h > 0) ans = max(ans, min(w, h));
+            }
+        }
+        return (long long)ans * ans;
+    }
+};
+```
+
+## 3048. 标记所有下标的最早秒数 I
+
+给你两个下标从 1 开始的整数数组 nums 和 changeIndices ，数组的长度分别为 n 和 m 。
+
+一开始，nums 中所有下标都是未标记的，你的任务是标记 nums 中 所有 下标。
+
+从第 1 秒到第 m 秒（包括 第 m 秒），对于每一秒 s ，你可以执行以下操作 之一 ：
+
+* 选择范围 [1, n] 中的一个下标 i ，并且将 nums[i] 减少 1 。
+* 如果 nums[changeIndices[s]] 等于 0 ，标记 下标 changeIndices[s] 。
+* 什么也不做。
+  
+请你返回范围 [1, m] 中的一个整数，表示最优操作下，标记 nums 中 所有 下标的 最早秒数 ，如果无法标记所有下标，返回 -1 。
+
+```cpp
+class Solution {
+public:
+    int earliestSecondToMarkIndices(vector<int>& nums, vector<int>& changeIndices) {        
+        if (changeIndices.size() < nums.size()) return -1;
+        for (auto &i : changeIndices) i--;
+
+        auto ok = [&](int x) {
+            unordered_map<int, int> last;
+            for (int i = 0; i < x; i++) last[changeIndices[i]] = i;
+            if (last.size() != nums.size()) return false;
+
+            for (int i = 0, c = 0; i < x; i++) {
+                if (i == last[changeIndices[i]]) {
+                    c -= nums[changeIndices[i]];
+                    if (c < 0) return false;
+                } else {
+                    c++;
+                }
+            }
+            return true;
+        };        
+
+        int st = nums.size(), ed = changeIndices.size();
+        while (st < ed) {
+            int md = (st + ed) >> 1;
+            if (ok(md)) ed = md;
+            else st = md + 1;
+        }
+        return ok(st) ? st : -1;
+    }
+};
+```
+
+## 3049. 标记所有下标的最早秒数 II
+
+给你两个下标从 1 开始的整数数组 nums 和 changeIndices ，数组的长度分别为 n 和 m 。
+
+一开始，nums 中所有下标都是未标记的，你的任务是标记 nums 中 所有 下标。
+
+从第 1 秒到第 m 秒（包括 第 m 秒），对于每一秒 s ，你可以执行以下操作 之一 ：
+
+* 选择范围 [1, n] 中的一个下标 i ，并且将 nums[i] 减少 1 。
+* 将 nums[changeIndices[s]] 设置成任意的 非负 整数。
+* 选择范围 [1, n] 中的一个下标 i ， 满足 nums[i] 等于 0, 并 标记 下标 i 。
+* 什么也不做。
+
+请你返回范围 [1, m] 中的一个整数，表示最优操作下，标记 nums 中 所有 下标的 最早秒数 ，如果无法标记所有下标，返回 -1 。
+
+
+
 ## 3069. 将元素分配到两个数组中 I
 
 给你一个下标从 1 开始、包含 不同 整数的数组 nums ，数组长度为 n 。
@@ -554,6 +671,102 @@ public:
                 if (m[k].contains(h)) { tans = m[k][h]; break; }
             }
             ans.push_back(tans);
+        }
+        return ans;
+    }
+};
+```
+
+## 100263. 哈沙德数
+
+如果一个整数能够被其各个数位上的数字之和整除，则称之为 哈沙德数（Harshad number）。给你一个整数 x 。如果 x 是 哈沙德数 ，则返回 x 各个数位上的数字之和，否则，返回 -1 。
+
+```cpp
+class Solution {
+public:
+    int sumOfTheDigitsOfHarshadNumber(int x) {
+        int s = 0;
+        for (int t = x; t; t /= 10) s += t % 10;
+        return x % s == 0 ? s : -1; 
+    }
+};
+```
+
+## 100235. 换水问题 II
+        
+给你两个整数 numBottles 和 numExchange 。
+
+numBottles 代表你最初拥有的满水瓶数量。在一次操作中，你可以执行以下操作之一：
+
+* 喝掉任意数量的满水瓶，使它们变成空水瓶。
+* 用 numExchange 个空水瓶交换一个满水瓶。然后，将 numExchange 的值增加 1 。
+
+注意，你不能使用相同的 numExchange 值交换多批空水瓶。例如，如果 numBottles == 3 并且 numExchange == 1 ，则不能用 3 个空水瓶交换成 3 个满水瓶。
+
+返回你 最多 可以喝到多少瓶水。
+
+```cpp
+class Solution {
+public:
+    int maxBottlesDrunk(int numBottles, int numExchange) {
+        int ans = numBottles;
+        while (numBottles >= numExchange) {
+            ans++, numBottles += 1 - numExchange++;
+        }
+        return ans;
+    }
+};
+```
+
+## 100266. 交替子数组计数
+
+给你一个二进制数组nums 。
+
+如果一个子数组中 不存在 两个 相邻 元素的值 相同 的情况，我们称这样的子数组为 交替子数组 。
+
+返回数组 nums 中交替子数组的数量。
+
+```cpp
+class Solution {
+public:
+    long long countAlternatingSubarrays(vector<int>& nums) {
+        long long ans = 0, cur = 0;
+        for (int i = 0; i < nums.size(); i++) {
+            (i == 0 || nums[i] == nums[i-1]) ? cur = 1 : cur++;
+            ans += cur;
+        }
+        return ans;
+    }
+};
+```
+
+## 100240. 最小化曼哈顿距离
+
+给你一个下标从 0 开始的数组 points ，它表示二维平面上一些点的整数坐标，其中 points[i] = [xi, yi] 。
+
+两点之间的距离定义为它们的曼哈顿距离。请你恰好移除一个点，返回移除后任意两点之间的 最大 距离可能的 最小 值。
+
+```cpp
+class Solution {
+public:
+    int minimumDistance(vector<vector<int>>& points) {
+        // 点集的最大曼哈顿距离为把每个点的x-y排序后的最大值-最小值，和x+y排序后的最大值-最小值，中取最大值
+        // ∣a−b∣ = max⁡(a−b, b−a)
+        // |x0-x1| + |y0-y1| = max(
+        //                       x0-x1+y0-y1 = (x0+y0) - (x1+y1)
+        //                       x0-x1+y1-y0 = (x0-y1) - (x1-y1)
+        //                       x1-x0+y0-y1 = (x1-y1) - (x0-y0)
+        //                       x1-x0+y1-y0 = (x1+y1) - (x0+y0)
+        //                     ）
+        // 就是说x+y里的最大值-最小值 和 x-y里的最大值-最小值，再取最大值
+        int ans = INT_MAX;
+        multiset<int> s1, s2;
+        for (auto &p : points) s1.insert(p[0]-p[1]), s2.insert(p[0]+p[1]);
+        for (auto &p : points) {
+            int t1 = p[0]-p[1], t2 = p[0]+p[1];
+            s1.erase(s1.find(t1)), s2.erase(s2.find(t2));
+            ans = min(ans, max(*s1.rbegin() - *s1.begin(), *s2.rbegin() - *s2.begin()));
+            s1.insert(t1), s2.insert(t2);
         }
         return ans;
     }
