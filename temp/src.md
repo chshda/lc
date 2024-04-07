@@ -772,3 +772,129 @@ public:
     }
 };
 ```
+
+## 100264. 最长的严格递增或递减子数组
+
+给你一个整数数组 nums 。返回数组 nums 中 严格递增 或 严格递减 的最长非空子数组的长度。
+
+```cpp
+class Solution {
+public:
+    int longestMonotonicSubarray(vector<int>& nums) {
+        int ans = 1, dp1 = 1, dp2 = 1;
+        for (int i = 1; i < nums.size(); i++) {
+            dp1 = nums[i] > nums[i-1] ? dp1+1 : 1;
+            dp2 = nums[i] < nums[i-1] ? dp2+1 : 1;
+            ans = max(ans, max(dp1, dp2));
+        }
+        return ans;
+    }
+};
+```
+
+## 100242. 满足距离约束且字典序最小的字符串
+
+给你一个字符串 s 和一个整数 k 。
+
+定义函数 distance(s1, s2) ，用于衡量两个长度为 n 的字符串 s1 和 s2 之间的距离，即：
+
+字符 'a' 到 'z' 按 循环 顺序排列，对于区间 [0, n - 1] 中的 i ，计算所有「 s1[i] 和 s2[i] 之间 最小距离」的 和 。
+例如，distance("ab", "cd") == 4 ，且 distance("a", "z") == 1 。
+
+你可以对字符串 s 执行 任意次 操作。在每次操作中，可以将 s 中的一个字母 改变 为 任意 其他小写英文字母。
+
+返回一个字符串，表示在执行一些操作后你可以得到的 字典序最小 的字符串 t ，且满足 distance(s, t) <= k 。
+
+```cpp
+class Solution {
+public:
+    string getSmallestString(string s, int k) {
+        for (int i = 0; i < s.size(); i++) {
+            int dis = min(s[i] - 'a', 'a' + 26 - s[i]);
+            if (dis <= k) k -= dis, s[i] = 'a';
+            else {
+                s[i] -= k; break;
+            }
+        }
+        return s;
+    }
+};
+```
+
+## 3107. 使数组中位数等于 K 的最少操作数
+
+给你一个整数数组 nums 和一个 非负 整数 k 。
+
+一次操作中，你可以选择任一下标 i ，然后将 nums[i] 加 1 或者减 1 。
+
+请你返回将 nums 中位数 变为 k 所需要的 最少 操作次数。
+
+一个数组的 中位数 指的是数组按 非递减 顺序排序后最中间的元素。如果数组长度为偶数，我们选择中间两个数的较大值为中位数。
+
+```cpp
+class Solution {
+public:
+    long long minOperationsToMakeMedianK(vector<int>& nums, int k) {
+        int n = nums.size(), m = n / 2;
+        ranges::nth_element(nums, nums.begin() + m);        
+        long long ans = 0;
+        if (nums[m] > k) {
+            for (int i = 0; i <= m; i++) ans += max(nums[i] - k,  0);
+        } else {
+            for (int i = m; i < n; i++) ans += max(k - nums[i], 0);
+        }
+        return ans;        
+    }
+};
+```
+
+## 100244. 带权图里旅途的最小代价
+
+给你一个 n 个节点的带权无向图，节点编号为 0 到 n - 1 。
+
+给你一个整数 n 和一个数组 edges ，其中 edges[i] = [ui, vi, wi] 表示节点 ui 和 vi 之间有一条权值为 wi 的无向边。
+
+在图中，一趟旅途包含一系列节点和边。旅途开始和结束点都是图中的节点，且图中存在连接旅途中相邻节点的边。注意，一趟旅途可能访问同一条边或者同一个节点多次。
+
+如果旅途开始于节点 u ，结束于节点 v ，我们定义这一趟旅途的 代价 是经过的边权按位与 AND 的结果。换句话说，如果经过的边对应的边权为 w0, w1, w2, ..., wk ，那么代价为w0 & w1 & w2 & ... & wk ，其中 & 表示按位与 AND 操作。
+
+给你一个二维数组 query ，其中 query[i] = [si, ti] 。对于每一个查询，你需要找出从节点开始 si ，在节点 ti 处结束的旅途的最小代价。如果不存在这样的旅途，答案为 -1 。
+
+返回数组 answer ，其中 answer[i] 表示对于查询 i 的 最小 旅途代价。
+
+```cpp
+struct DisjointSet {
+    vector<int> pa, size;
+    DisjointSet(int n): pa(n), size(n, 1) { for (int i = 0; i < n; i++) pa[i] = i; }
+    int find(int x) { return pa[x] == x ? x : pa[x] = find(pa[x]); }
+    void merge(int x, int y) {
+        x = find(x), y = find(y);
+        if (x == y) return;
+        if (size[x] < size[y]) swap(x, y);
+        pa[y] = x; size[x] += size[y];
+    }
+};
+
+class Solution {
+public:
+    vector<int> minimumCost(int n, vector<vector<int>>& edges, vector<vector<int>>& query) {
+        DisjointSet ds(n);
+        for (auto &e : edges) ds.merge(e[0], e[1]);
+
+        map<int, int> m;
+        for (auto &e : edges) {
+            int u = e[0], v = e[1], w = e[2], fa = ds.find(u);
+            if (m.contains(fa)) m[fa] &= w;
+            else m[fa] = w;
+        }        
+
+        vector<int> ans(query.size(), -1);
+        for (int i = 0; i < query.size(); i++) {
+            int u = query[i][0], v = query[i][1];
+            if (u == v) ans[i] = 0;
+            else if (ds.find(u) == ds.find(v)) ans[i] = m[ds.find(u)];
+        }
+        return ans;
+    }
+};
+```
