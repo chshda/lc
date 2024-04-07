@@ -1,5 +1,145 @@
 # 题解
 
+### 3033. 修改矩阵
+
+给你一个下标从 0 开始、大小为 m x n 的整数矩阵 matrix ，新建一个下标从 0 开始、名为 answer 的矩阵。使 answer 与 matrix 相等，接着将其中每个值为 -1 的元素替换为所在列的 最大 元素。
+
+返回矩阵 answer 。
+
+```cpp
+class Solution {
+public:
+    vector<vector<int>> modifiedMatrix(vector<vector<int>>& matrix) {
+        int m = matrix.size(), n = matrix[0].size();
+        for (int j = 0; j < n; j++) {
+            int mx = -1;
+            for (int i = 0; i < m; i++) mx = max(mx, matrix[i][j]);
+            for (int i = 0; i < m; i++) if (matrix[i][j] == -1) matrix[i][j] = mx;
+        }        
+        return matrix;
+    }
+};
+```
+
+### 3034. 匹配模式数组的子数组数目 I
+
+给你一个下标从 0 开始长度为 n 的整数数组 nums ，和一个下标从 0 开始长度为 m 的整数数组 pattern ，pattern 数组只包含整数 -1 ，0 和 1 。
+
+大小为 m + 1 的子数组 nums[i..j] 如果对于每个元素 pattern[k] 都满足以下条件，那么我们说这个子数组匹配模式数组 pattern ：
+
+* 如果 pattern[k] == 1 ，那么 nums[i + k + 1] > nums[i + k]
+* 如果 pattern[k] == 0 ，那么 nums[i + k + 1] == nums[i + k]
+* 如果 pattern[k] == -1 ，那么 nums[i + k + 1] < nums[i + k]
+
+请你返回匹配 pattern 的 nums 子数组的 数目 。
+
+```cpp
+// Same as #3036
+```
+
+### 3035. 回文字符串的最大数量
+
+给你一个下标从 0 开始的字符串数组 words ，数组的长度为 n ，且包含下标从 0 开始的若干字符串。
+
+你可以执行以下操作 任意 次数（包括零次）：选择整数i、j、x和y，满足0 <= i, j < n，0 <= x < words[i].length，0 <= y < words[j].length，交换 字符 words[i][x] 和 words[j][y] 。
+
+返回一个整数，表示在执行一些操作后，words 中可以包含的回文串的 最大 数量。
+
+注意：在操作过程中，i 和 j 可以相等。
+
+```cpp
+class Solution {
+public:
+    int maxPalindromesAfterOperations(vector<string>& words) {
+        unordered_map<int, int> m;
+        for (auto &w : words) for (auto &c : w) m[c]++;
+
+        int tot = 0;
+        for (auto &[k, v] : m) tot += (v & 1) ? v-1 : v;
+
+        vector<int> lens;
+        for (auto &w : words) lens.push_back(w.size());
+        ranges::sort(lens);
+
+        int ans = 0;
+        for (auto &len : lens) {
+            tot -= len / 2 * 2;
+            if (tot < 0) break;
+            ans++;
+        }
+        return ans;
+    }
+};
+```
+
+### 3036. 匹配模式数组的子数组数目 II
+
+给你一个下标从 0 开始长度为 n 的整数数组 nums ，和一个下标从 0 开始长度为 m 的整数数组 pattern ，pattern 数组只包含整数 -1 ，0 和 1 。
+
+大小为 m + 1 的子数组 nums[i..j] 如果对于每个元素 pattern[k] 都满足以下条件，那么我们说这个子数组匹配模式数组 pattern ：
+
+* 如果 pattern[k] == 1 ，那么 nums[i + k + 1] > nums[i + k]
+* 如果 pattern[k] == 0 ，那么 nums[i + k + 1] == nums[i + k]
+* 如果 pattern[k] == -1 ，那么 nums[i + k + 1] < nums[i + k]
+
+请你返回匹配 pattern 的 nums 子数组的 数目 。
+
+```cpp
+mt19937 gen(random_device{}());
+int rnd(int x, int y) { return uniform_int_distribution<int>(x, y)(gen); }
+
+int m1 = 998244353 + rnd(0, 1e9), b1 = 233 + rnd(0, 1e3);
+int m2 = 998244353 + rnd(0, 1e9), b2 = 233 + rnd(0, 1e3);
+
+struct SH1 {
+    int n, mod, base;
+    vector<long long> p, h;
+
+    SH1(string &s, int mod = 998244353, int base = 131) : n(s.size()), mod(mod), base(base) {
+        p.resize(n+1, 1);
+        for (long long i = 1; i <= n; i++) p[i] = p[i-1] * base % mod;
+
+        h.resize(n+1, 0);
+        for (long long i = 0; i < n; i++) h[i+1] = (h[i] * base + s[i] - 'a' + 1) % mod;
+    }
+
+    long long hash(int i, int j) {  // [i, j], 0 based
+        return (h[j+1] - h[i] * p[j - i + 1] % mod + mod) % mod;
+    }
+};
+
+struct SH2 {
+    int n;
+    SH1 h1, h2;
+
+    SH2(string &s) : n(s.size()), h1(SH1(s, m1, b1)), h2(SH1(s, m2, b2)) {}
+
+    long long hash() { return hash(0, n - 1); }
+
+    long long hash(int l, int r) {  // [i, j], 0 based
+        return h1.hash(l, r) * m1 + h2.hash(l, r);
+    }
+};
+
+class Solution {
+public:
+    int countMatchingSubarrays(vector<int>& nums, vector<int>& pattern) {
+        string s;
+        for (int i = 1; i < nums.size(); i++) s += 'g' + (nums[i] > nums[i-1] ? 1 : (nums[i] < nums[i-1] ? -1 : 0));
+        string p;
+        for (auto i : pattern) p += 'g' + i;
+
+        int ans = 0;
+        auto h = SH2(p).hash();
+        long long hs = SH2(s);
+        for (int i = 0, j = p.size()-1; j < s.size(); i++, j++) {
+            ans += hs.hash(i, j) == h;
+        }
+        return ans;
+    }
+};
+```
+
 ## 第 385 场周赛
 
 ### 3042. 统计前后缀下标对 I
