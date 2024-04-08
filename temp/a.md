@@ -1,5 +1,45 @@
 # 代码
 
+
+### 离散化
+
+离散化，离散化后的大小为dc.n，范围为[1, n]（1-based），正向映射（原始数字映射到离散化后的数字）dc.map，反向映射dc.rmap。
+
+```cpp
+struct DC {
+    int n; vector<int> v; unordered_map<int, int> m;
+
+    DC(vector<int> v) : v(v) {
+        ranges::sort(v);
+        v.erase(unique(v.begin(), v.end()), v.end());
+        n = v.size();
+        for (int i = 0; i < n; i++) m[v[i]] = i + 1;
+    }
+
+    int map(int x) { return m[x]; }
+    int rmap(int x) { return v[x-1]; }
+};
+```
+
+### 树状数组
+
+树状数组，输入参数n位数组大小，范围为[1, n]（1-based），计算前缀、后缀和区间和。
+
+```cpp
+struct BIT {
+    int n; vector<int> c;    
+
+    BIT(int n): n(n), c(n + 1) {}
+
+    void update(int i, int val = 1) { while (i < c.size()) c[i] += val, i += i & -i ; }        
+    int pre(int i) { int ans = 0; while (i) ans += c[i], i -= i & -i; return ans; };
+    int query(int l, int r) { return pre(r) - pre(l - 1); }
+    int suf(int i) { return query(i, n); };
+};
+```
+
+
+
 **API**
 
 ```cpp
