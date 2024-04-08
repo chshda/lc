@@ -549,41 +549,50 @@ public:
 返回整数数组 result 。
 
 ```cpp
-class Bit {
-public:
-    Bit(int n): c(n + 1) {}
-    void update(int i, int val = 1) { while (i < c.size()) c[i] += val, i += i & -i ; }
-    int sum(int i) { int ans = 0; while (i) ans += c[i], i -= i & -i; return ans; }
-    int query(int l, int r) { return sum(r) - sum(l - 1); }
+struct DC {
+    int n;
+    vector<int> v;
+    unordered_map<int, int> m;
 
-private:
-    vector<int> c;    
+    DC(vector<int> v) : v(v) {
+        ranges::sort(v);
+        v.erase(unique(v.begin(), v.end()), v.end());
+        n = v.size();
+        for (int i = 0; i < n; i++) m[v[i]] = i + 1;
+    }
+
+    int map(int x) { return m[x]; }
+    int rmap(int x) { return v[x-1]; }
+};
+
+struct BIT {
+    int n; vector<int> c;    
+
+    BIT(int n): n(n), c(n + 1) {}
+
+    void update(int i, int val = 1) { while (i < c.size()) c[i] += val, i += i & -i ; }        
+    int pre(int i) { int ans = 0; while (i) ans += c[i], i -= i & -i; return ans; };
+    int query(int l, int r) { return pre(r) - pre(l - 1); }
+    int suf(int i) { return query(i, n); };
 };
 
 class Solution {
 public:
     vector<int> resultArray(vector<int>& nums) {
-        auto t = nums;
-        ranges::sort(t);
-        t.erase(unique(t.begin(), t.end()), t.end());
-
-        auto f = [&](int x) {
-            return lower_bound(t.begin(), t.end(), x) - t.begin() + 1;
-        };
-
-        int n = t.size();
+        DC dc(nums);
+        int n = dc.n;
+        BIT t1(n), t2(n);
         vector<int> v1, v2;
-        Bit t1(n), t2(n);
-        v1.push_back(nums[0]), t1.update(f(nums[0]));
-        v2.push_back(nums[1]), t2.update(f(nums[1]));
+        v1.push_back(nums[0]), t1.update(dc.map(nums[0]));
+        v2.push_back(nums[1]), t2.update(dc.map(nums[1]));
 
         for (int i = 2; i < nums.size(); i++) {
-            int v = f(nums[i]);
-            int c1 = t1.query(v+1, n), c2 = t2.query(v+1, n);
-            if (c1 > c2 || (c1 == c2 && (v1.size() <= v2.size()))) {
-                v1.push_back(nums[i]), t1.update(v);
+            int cur = dc.map(nums[i]);
+            int c1 = t1.suf(cur+1), c2 = t2.suf(cur+1);
+            if (c1 > c2 | (c1 == c2 && v1.size() <= v2.size())) {
+                v1.push_back(nums[i]), t1.update(cur);                
             } else {
-                v2.push_back(nums[i]), t2.update(v);
+                v2.push_back(nums[i]), t2.update(cur);
             }
         }
         v1.insert(v1.end(), v2.begin(), v2.end());
