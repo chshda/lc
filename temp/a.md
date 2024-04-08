@@ -1,6 +1,6 @@
 # 代码
 
-### 离散化（discretization）
+## 离散化（discretization）
 
 离散化，离散化后的大小为dc.n，范围为[1, n]（1-based），正向映射（原始数字映射到离散化后的数字）dc.map，反向映射dc.rmap。
 
@@ -22,7 +22,7 @@ struct DC {
 };
 ```
 
-### 树状数组（binary index tree）
+## 树状数组（binary index tree）
 
 树状数组，输入参数n位数组大小，范围为[1, n]（1-based），计算前缀、后缀和区间和。
 
@@ -41,7 +41,7 @@ struct BIT {
 
 
 
-**API**
+## 语法
 
 ```cpp
 vector<int> a;
