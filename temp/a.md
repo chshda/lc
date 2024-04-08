@@ -1,6 +1,5 @@
 # 代码
 
-
 ### 离散化（discretization）
 
 离散化，离散化后的大小为dc.n，范围为[1, n]（1-based），正向映射（原始数字映射到离散化后的数字）dc.map，反向映射dc.rmap。
