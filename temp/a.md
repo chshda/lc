@@ -4,6 +4,8 @@
 
 离散化，离散化后的大小为dc.n，范围为[1, n]（1-based），正向映射（原始数字映射到离散化后的数字）dc.map，反向映射dc.rmap。
 
+map函数还可以直接写成 `lower_bound(v.begin(), v.end(), x) - v.begin() + 1;`，这里用空间换时间。
+
 ```cpp
 struct DC {
     int n; vector<int> v; unordered_map<int, int> m;
@@ -152,7 +154,7 @@ vector<int> a; // 待离散化
 vector<int> t = a;
 sort(t.begin(), t.end());
 t.erase(unique(t.begin(), t.end()), t.end());
-for (auto &i : a) i = lower_bound(t.begin(), t.end(), i) - t.begin() + 1;
+for (auto &i : a) i = 
 ```
 
 **单调栈**
