@@ -1,5 +1,162 @@
 # 题解
 
+## 第 383 场周赛
+
+### 3028. 边界上的蚂蚁
+
+边界上有一只蚂蚁，它有时向 左 走，有时向 右 走。
+
+给你一个 非零 整数数组 nums 。蚂蚁会按顺序读取 nums 中的元素，从第一个元素开始直到结束。每一步，蚂蚁会根据当前元素的值移动：
+
+* 如果 nums[i] < 0 ，向 左 移动 -nums[i]单位。
+* 如果 nums[i] > 0 ，向 右 移动 nums[i]单位。
+* 
+返回蚂蚁 返回 到边界上的次数。
+
+注意：边界两侧有无限的空间。只有在蚂蚁移动了 |nums[i]| 单位后才检查它是否位于边界上。换句话说，如果蚂蚁只是在移动过程中穿过了边界，则不会计算在内。
+
+```cpp
+class Solution {
+public:
+    int returnToBoundaryCount(vector<int>& nums) {
+        int ans = 0, sum = 0;
+        for (auto i : nums) sum += i, ans += sum == 0;
+        return ans;
+    }
+};
+```
+
+### 3029. 将单词恢复初始状态所需的最短时间 I
+
+给你一个下标从 0 开始的字符串 word 和一个整数 k 。
+
+在每一秒，你必须执行以下操作：
+
+* 移除 word 的前 k 个字符。
+* 在 word 的末尾添加 k 个任意字符。
+
+注意 添加的字符不必和移除的字符相同。但是，必须在每一秒钟都执行 两种 操作。
+
+返回将 word 恢复到其 初始 状态所需的 最短 时间（该时间必须大于零）。
+
+```cpp
+// Same as 3031.
+```
+
+### 3030. 找出网格的区域平均强度
+
+给你一个下标从 0 开始、大小为 m x n 的网格 image ，表示一个灰度图像，其中 image[i][j] 表示在范围 [0..255] 内的某个像素强度。另给你一个 非负 整数 threshold 。
+
+如果 image[a][b] 和 image[c][d] 满足 |a - c| + |b - d| == 1 ，则称这两个像素是 相邻像素 。
+
+区域 是一个 3 x 3 的子网格，且满足区域中任意两个 相邻 像素之间，像素强度的 绝对差 小于或等于 threshold 。
+
+区域 内的所有像素都认为属于该区域，而一个像素 可以 属于 多个 区域。
+
+你需要计算一个下标从 0 开始、大小为 m x n 的网格 result ，其中 result[i][j] 是 image[i][j] 所属区域的 平均 强度，向下取整 到最接近的整数。如果 image[i][j] 属于多个区域，result[i][j] 是这些区域的 “取整后的平均强度” 的 平均值，也 向下取整 到最接近的整数。如果 image[i][j] 不属于任何区域，则 result[i][j] 等于 image[i][j] 。
+
+返回网格 result 。
+
+```cpp
+class Solution {
+public:
+    vector<vector<int>> resultGrid(vector<vector<int>>& image, int threshold) {
+        int m = image.size(), n = image[0].size();
+        vector<vector<int>> sum(m, vector<int>(n)), cnt(m, vector<int>(n));
+
+        auto f = [&](int x, int y) {
+            for (int i = -1; i <= 1; i++) for (int j = -1; j <= 1; j++) {
+                int x0 = x + i, y0 = y + j;
+                for (int k = -1; k <= 1; k++) for (int l = -1; l <= 1; l++) {
+                    int x1 = x + k, y1 = y + l;
+                    if (abs(x0-x1) + abs(y0-y1) == 1 && abs(image[x0][y0] - image[x1][y1]) > threshold) return -1;
+                }
+            }
+            int sum = 0;
+            for (int i = -1; i <= 1; i++) for (int j = -1; j <= 1; j++) sum += image[x+i][y+j];
+            return sum / 9;
+        };
+
+        for (int i = 1; i < m-1; i++) for (int j = 1; j < n-1; j++) {
+            if (int s = f(i, j); s != -1) {
+                for (int dx = -1; dx <= 1; dx++) for (int dy = -1; dy <= 1; dy++) {
+                    sum[i+dx][j+dy] += s, cnt[i+dx][j+dy]++;
+                }
+            }
+        }
+        for (int i = 0; i < m; i++) for (int j = 0; j < n; j++) {
+            if (cnt[i][j] == 0) sum[i][j] = image[i][j];
+            else sum[i][j] /= cnt[i][j];
+        }
+        return sum;
+    }
+};
+```
+
+### 3031. 将单词恢复初始状态所需的最短时间 II
+
+给你一个下标从 0 开始的字符串 word 和一个整数 k 。
+
+在每一秒，你必须执行以下操作：
+
+* 移除 word 的前 k 个字符。
+* 在 word 的末尾添加 k 个任意字符。
+
+注意 添加的字符不必和移除的字符相同。但是，必须在每一秒钟都执行 两种 操作。
+
+返回将 word 恢复到其 初始 状态所需的 最短 时间（该时间必须大于零）。
+
+```cpp
+mt19937 gen(random_device{}());
+int rnd(int x, int y) { return uniform_int_distribution<int>(x, y)(gen); }
+
+int m1 = 998244353 + rnd(0, 1e9), b1 = 233 + rnd(0, 1e3);
+int m2 = 998244353 + rnd(0, 1e9), b2 = 233 + rnd(0, 1e3);
+
+struct SH1 {
+    int n, mod, base;
+    vector<long long> p, h;
+
+    SH1(string &s, int mod = 998244353, int base = 131) : n(s.size()), mod(mod), base(base) {
+        p.resize(n+1, 1);
+        for (long long i = 1; i <= n; i++) p[i] = p[i-1] * base % mod;
+
+        h.resize(n+1, 0);
+        for (long long i = 0; i < n; i++) h[i+1] = (h[i] * base + s[i] - 'a' + 1) % mod;
+    }
+
+    long long hash(int i, int j) {  // [i, j], 0 based
+        return (h[j+1] - h[i] * p[j - i + 1] % mod + mod) % mod;
+    }
+};
+
+struct SH2 {
+    int n;
+    SH1 h1, h2;
+
+    SH2(string &s) : n(s.size()), h1(SH1(s, m1, b1)), h2(SH1(s, m2, b2)) {}
+
+    long long hash() { return hash(0, n - 1); }
+
+    long long hash(int l, int r) {  // [i, j], 0 based
+        return h1.hash(l, r) * m1 + h2.hash(l, r);
+    }
+};
+
+class Solution {
+public:
+    int minimumTimeToInitialState(string word, int k) {
+        SH2 h(word);
+        int n = word.size();
+        for (int i = 1; i <= n; i++) {
+            if ((long long)i * k > n) return i;
+            if (h.hash(i * k, n - 1) == h.hash(0, n - 1 - i * k)) return i;
+        }
+        return -1;
+    }
+};
+```
+
 ## 第 384 场周赛
 
 ### 3033. 修改矩阵
