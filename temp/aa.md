@@ -1400,6 +1400,119 @@ public:
 };
 ```
 
+## 第 397 场周赛
+
+### 3146. 两个字符串的排列差
+
+给你两个字符串 s 和 t，每个字符串中的字符都不重复，且 t 是 s 的一个排列。
+
+排列差 定义为 s 和 t 中每个字符在两个字符串中位置的绝对差值之和。
+
+返回 s 和 t 之间的 排列差 。
+
+```cpp
+class Solution {
+public:
+    int findPermutationDifference(string s, string t) {
+        vector<int> m1(26), m2(26);
+        for (int i = 0; i < s.size(); i++) m1[s[i]-'a'] = i, m2[t[i]-'a'] = i;
+        int ans = 0;
+        for (int i = 0; i < 26; i++) ans += abs(m1[i] - m2[i]);
+        return ans;
+    }
+};
+```
+
+### 3147. 从魔法师身上吸取的最大能量
+
+在神秘的地牢中，n 个魔法师站成一排。每个魔法师都拥有一个属性，这个属性可以给你提供能量。有些魔法师可能会给你负能量，即从你身上吸取能量。
+
+你被施加了一种诅咒，当你从魔法师 i 处吸收能量后，你将被立即传送到魔法师 (i + k) 处。这一过程将重复进行，直到你到达一个不存在 (i + k) 的魔法师为止。
+
+换句话说，你将选择一个起点，然后以 k 为间隔跳跃，直到到达魔法师序列的末端，在过程中吸收所有的能量。
+
+给定一个数组 energy 和一个整数k，返回你能获得的 最大 能量。
+
+```cpp
+class Solution {
+public:
+    int maximumEnergy(vector<int>& energy, int k) {
+        for (int i = energy.size()-k-1; i >= 0; i--) energy[i] += energy[i+k];
+        return ranges::max(energy);
+    }
+};
+```
+
+### 3148. 矩阵中的最大得分
+
+给你一个由 正整数 组成、大小为 m x n 的矩阵 grid。你可以从矩阵中的任一单元格移动到另一个位于正下方或正右侧的任意单元格（不必相邻）。从值为 c1 的单元格移动到值为 c2 的单元格的得分为 c2 - c1 。
+
+你可以从 任一 单元格开始，并且必须至少移动一次。
+
+返回你能得到的 最大 总得分。
+
+```cpp
+class Solution {
+public:
+    int maxScore(vector<vector<int>>& a) {
+        int m = a.size(), n = a[0].size(), ans = INT_MIN;
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (i == 0 && j == 0) continue;
+                int mn = INT_MAX;
+                if (i-1 >= 0) mn = min(mn, a[i-1][j]);
+                if (j-1 >= 0) mn = min(mn, a[i][j-1]);
+                ans = max(ans, a[i][j] - mn);
+                a[i][j] = min(a[i][j], mn);
+            }
+        }
+        return ans;
+    }
+};
+```
+
+### 3149. 找出分数最低的排列
+
+给你一个数组 nums ，它是 [0, 1, 2, ..., n - 1] 的一个排列 。对于任意一个 [0, 1, 2, ..., n - 1] 的排列 perm ，其 分数 定义为：
+
+score(perm) = |perm[0] - nums[perm[1]]| + |perm[1] - nums[perm[2]]| + ... + |perm[n - 1] - nums[perm[0]]|
+
+返回具有 最低 分数的排列 perm 。如果存在多个满足题意且分数相等的排列，则返回其中字典序最小的一个。
+
+状态压缩DP。首先观察定义，分数只跟每个数字以及其相邻数字有关系，跟具体位置无关，意味着循环以为数组不影响其分数，为保证分数最小，第一位必须为0，然后递归枚举下一位数字。考虑到中间会出现重复子问题，使用状态压缩DP。
+
+dp[i][j] 表示已经选过的数字集合为i，并且前一位选择的数字为j时的最小值，dp[i][j] = dp[i | (1 << k)][k] 的最小值，使用pre记录取得最小值时选择的k，之后回溯构造答案。
+
+```cpp
+class Solution {
+public:
+    vector<int> findPermutation(vector<int>& a) {
+        int n = a.size();
+        vector<vector<int>> dp(1 << n, vector<int>(n, INT_MAX));
+        vector<vector<int>> pre(1 << n, vector<int>(n, -1));
+        for (int i = 0; i < n; i++) dp[(1 << n) - 1][i] = abs(i - a[0]);
+        for (int i = (1 << n) - 1 - 2; i >= 0; i -= 2) {
+            for (int j = 0; j < n; j++) {
+                if ((i >> j & 1) == 0) continue;
+                for (int k = 0; k < n; k++) {
+                    if (i >> k & 1) continue;
+                    int t = dp[i | (1 << k)][k] + abs(j - a[k]);
+                    if (t < dp[i][j]) dp[i][j] = t, pre[i][j] = k;
+                }
+            }
+        }
+        vector<int> ans;
+        int i = 1, j = 0;
+        while (true) {
+            ans.push_back(j);
+            if ((j = pre[i][j]) == -1) break; 
+            i |= 1 << j;
+        }
+        return ans;
+    }
+};
+```
+
 ## 第 398 场周赛
 
 ### 3151. 特殊数组 I
