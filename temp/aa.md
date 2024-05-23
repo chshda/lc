@@ -1400,6 +1400,145 @@ public:
 };
 ```
 
+## 第 396 场周赛
+
+### 3136. 有效单词
+
+有效单词 需要满足以下几个条件：
+
+* 至少 包含 3 个字符。
+* 由数字 0-9 和英文大小写字母组成。（不必包含所有这类字符。）
+* 至少 包含一个 元音字母 。
+* 至少 包含一个 辅音字母 。
+* 给你一个字符串 word 。如果 word 是一个有效单词，则返回 true ，否则返回 false 。
+
+注意： 'a'、'e'、'i'、'o'、'u' 及其大写形式都属于 元音字母 。英文中的 辅音字母 是指那些除元音字母之外的字母。
+
+
+```cpp
+class Solution {
+public:
+    bool isValid(string word) {
+        auto ok = [&](char x) {
+            x = tolower(x);
+            return x == 'a' || x == 'e' || x == 'i' || x == 'o' || x == 'u';
+        };
+
+        if (word.size() < 3) return false;
+        for (auto i : word) if (!isalnum(i)) return false;
+        bool has1 = false, has2 = false;
+        for (auto i : word) if (isalpha(i)) has1 |= ok(i), has2 |= !ok(i);
+        return has1 && has2;
+    }
+};
+```
+
+### 3137. K 周期字符串需要的最少操作次数
+
+给你一个长度为 n 的字符串 word 和一个整数 k ，其中 k 是 n 的因数。
+
+在一次操作中，你可以选择任意两个下标 i 和 j，其中 0 <= i, j < n ，且这两个下标都可以被 k 整除，然后用从 j 开始的长度为 k 的子串替换从 i 开始的长度为 k 的子串。也就是说，将子串 word[i..i + k - 1] 替换为子串 word[j..j + k - 1] 。
+
+返回使 word 成为 K 周期字符串 所需的 最少 操作次数。
+
+如果存在某个长度为 k 的字符串 s，使得 word 可以表示为任意次数连接 s ，则称字符串 word 是 K 周期字符串 。例如，如果 word == "ababab"，那么 word 就是 s = "ab" 时的 2 周期字符串 。
+
+```cpp
+class Solution {
+public:
+    int minimumOperationsToMakeKPeriodic(string word, int k) {
+        map<string, int> m;
+        for (int i = 0; i < word.size(); i += k) m[word.substr(i, k)]++;
+        int ans = INT_MAX;
+        for (auto &[_, v] : m) ans = min(ans, (int)word.size() / k - v);
+        return ans;
+    }
+};
+```
+
+### 3138. 同位字符串连接的最小长度
+
+给你一个字符串 s ，它由某个字符串 t 和若干 t  的 同位字符串 连接而成。
+
+请你返回字符串 t 的 最小 可能长度。
+
+同位字符串 指的是重新排列一个单词得到的另外一个字符串，原来字符串中的每个字符在新字符串中都恰好只使用一次。
+
+```cpp
+class Solution {
+public:
+    int minAnagramLength(string s) {
+        int n = s.size();
+        for (int i = 1; i <= n / 2; i++) {
+            if (n % i != 0) continue;
+            string t = s.substr(0, i); ranges::sort(t);
+            bool ok = true;
+            for (int j = i; j < n; j += i) {
+                string t1 = s.substr(j, i); ranges::sort(t1);
+                if (t != t1) { ok = false; break; }
+            }
+            if (ok) return i;
+        }
+        return n;
+    }
+};
+```
+
+### 3139. 使数组中所有元素相等的最小开销
+
+给你一个整数数组 nums 和两个整数 cost1 和 cost2 。你可以执行以下 任一 操作 任意 次：
+
+从 nums 中选择下标 i 并且将 nums[i] 增加 1 ，开销为 cost1。
+选择 nums 中两个 不同 下标 i 和 j ，并且将 nums[i] 和 nums[j] 都 增加 1 ，开销为 cost2 。
+你的目标是使数组中所有元素都 相等 ，请你返回需要的 最小开销 之和。
+
+由于答案可能会很大，请你将它对 109 + 7 取余 后返回。
+
+首先处理特殊情况，对于普通情况，假设目标位某个高度mx，问题等价于有n堆石头，每堆有mx-ai个石头，每次选一堆拿走一个，或者选两堆各拿走一个，求最小代价。
+
+假设石头总数为s，最大一堆数量为m，剩余数量rest=s-m。
+
+* 若rest <= m，则只能把rest全用操作2，剩下的用操作1。
+* 否则，可以尽量全部使用操作2，最后剩余单个石头的话，用操作1。
+
+目标高度至少为最大元素mx，但可能会更大，考虑枚举这个范围内的每个数值。枚举的上界如何确定？当处于第1种情况时，差值为m-rest，每次增加1个目标高度，差值可以减少n-2，则至多大约添加 m-rest / n-2 可以转为第2种情况，实际操作时需要多枚举2次，保证处理到所有可能的情况。处于第2种情况时，代价和总和挂钩，高度越高代价越大，除非通过增加高度把唯一一次cost1给去掉了，大概枚举个2、3次意思意思就可以了。
+
+```cpp
+static const int mod = 1e9 + 7;
+class Solution {
+public:
+    int minCostToEqualizeArray(vector<int>& nums, int cost1, int cost2) {
+        int n = nums.size();
+        if (n == 1) return 0;
+        if (n == 2) return (long long)(abs(nums[0] - nums[1])) * cost1 % mod;
+
+        long long mx = ranges::max(nums);
+        if (2 * cost1 <= cost2) {        
+            long long ans = 0;    
+            for (auto i : nums) ans += (long long)(mx - i) * cost1;
+            return ans % mod;
+        }        
+
+        for (auto &i : nums) i = mx - i;
+        long long s = accumulate(nums.begin(), nums.end(), 0LL);
+        long long m = ranges::max(nums);
+
+        long long ans = LLONG_MAX;
+        long long d = (m - (s - m)) / (n - 2) + 2;
+        for (int i = 0; i <= max(d, 2LL); i++) {
+            long long m0 = m + i, s0 = s + (long long)n * i, ans0;
+            if (s0 - m0 >= m0) {
+                ans0 = s0 / 2 * cost2 + (s0 % 2) * cost1;
+            } else {
+                ans0 = (s0 - m0) * cost2 + (m0 - (s0 - m0)) * cost1;
+            }
+            ans = min(ans, ans0);
+        }
+        return ans % mod;
+    }
+};
+```
+
 ## 第 397 场周赛
 
 ### 3146. 两个字符串的排列差
