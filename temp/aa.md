@@ -1491,11 +1491,11 @@ public:
         vector<vector<int>> dp(1 << n, vector<int>(n, INT_MAX));
         vector<vector<int>> pre(1 << n, vector<int>(n, -1));
         for (int i = 0; i < n; i++) dp[(1 << n) - 1][i] = abs(i - a[0]);
-        for (int i = (1 << n) - 1 - 2; i >= 0; i -= 2) {
+        for (int i = (1 << n) - 1 - 2; i >= 0; i -= 2) { // 数字0是第一个选择的数字，因此状态里第0位必须为1
             for (int j = 0; j < n; j++) {
-                if ((i >> j & 1) == 0) continue;
+                if ((i >> j & 1) == 0) continue; // j必须在集合i中，因为j时前一次选择的数字，必须在已选择数字集合里
                 for (int k = 0; k < n; k++) {
-                    if (i >> k & 1) continue;
+                    if (i >> k & 1) continue; // 下一个选择的数字必须不能出现在已选择数字的集合中
                     int t = dp[i | (1 << k)][k] + abs(j - a[k]);
                     if (t < dp[i][j]) dp[i][j] = t, pre[i][j] = k;
                 }
@@ -1505,7 +1505,7 @@ public:
         int i = 1, j = 0;
         while (true) {
             ans.push_back(j);
-            if ((j = pre[i][j]) == -1) break; 
+            if ((j = pre[i][j]) == -1) break; // 回溯直到没有前驱节点为止
             i |= 1 << j;
         }
         return ans;
