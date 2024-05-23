@@ -78,8 +78,8 @@ public:
         };
 
         for (int i = 1; i < m-1; i++) for (int j = 1; j < n-1; j++) {
-            if (int s = f(i, j); s != -1) {
                 for (int dx = -1; dx <= 1; dx++) for (int dy = -1; dy <= 1; dy++) {
+            if (int s = f(i, j); s != -1) {
                     sum[i+dx][j+dy] += s, cnt[i+dx][j+dy]++;
                 }
             }
@@ -1399,3 +1399,103 @@ public:
     }
 };
 ```
+
+## 第 398 场周赛
+
+### 3151. 特殊数组 I
+
+如果数组的每一对相邻元素都是两个奇偶性不同的数字，则该数组被认为是一个 特殊数组 。
+
+Aging 有一个整数数组 nums。如果 nums 是一个 特殊数组 ，返回 true，否则返回 false。
+
+```cpp
+class Solution {
+public:
+    bool isArraySpecial(vector<int>& nums) {
+        for (int i = 1; i < nums.size(); i++) if ((nums[i]&1) == (nums[i-1]&1)) return false;
+        return true;
+    }
+};
+```
+
+### 3152. 特殊数组 II
+
+如果数组的每一对相邻元素都是两个奇偶性不同的数字，则该数组被认为是一个 特殊数组 。
+
+周洋哥有一个整数数组 nums 和一个二维整数矩阵 queries，对于 queries[i] = [fromi, toi]，请你帮助周洋哥检查子数组 nums[fromi..toi] 是不是一个 特殊数组 。
+
+返回布尔数组 answer，如果 nums[fromi..toi] 是特殊数组，则 answer[i] 为 true ，否则，answer[i] 为 false 。
+
+```cpp
+class Solution {
+public:
+    vector<bool> isArraySpecial(vector<int>& nums, vector<vector<int>>& queries) {
+        int n = nums.size();
+        vector<int> v(n);
+        for (int i = 1; i < n; i++) v[i] = v[i-1] + ((nums[i]&1) == (nums[i-1]&1));        
+        vector<bool> ans;
+        for (auto &q : queries) {
+            int from = q[0], to = q[1];
+            ans.push_back(v[to] - v[from] == 0);
+        }
+        return ans;
+    }
+};
+```
+
+### 3153. 所有数对中数位不同之和
+
+有一个数组 nums ，它只包含 正 整数，所有正整数的数位长度都 相同 。
+
+两个整数的 数位不同 指的是两个整数 相同 位置上不同数字的数目。
+
+请返回 nums 中 所有 整数对里，数位不同之和。
+
+```cpp
+class Solution {
+public:
+    long long sumDigitDifferences(vector<int>& nums) {
+        long long ans = 0, n = nums.size();
+        while(nums[0]) {
+            vector<long long> cnt(10);
+            for (auto &j : nums) cnt[j % 10]++, j /= 10;            
+            for (auto &j : cnt) ans += j * (n - j);
+        }
+        return ans >> 1;
+    }
+};
+```
+
+### 3154. 到达第 K 级台阶的方案数
+
+给你有一个 非负 整数 k 。有一个无限长度的台阶，最低 一层编号为 0 。
+
+虎老师有一个整数 jump ，一开始值为 0 。虎老师从台阶 1 开始，虎老师可以使用 任意 次操作，目标是到达第 k 级台阶。假设虎老师位于台阶 i ，一次 操作 中，虎老师可以：
+
+向下走一级到 i - 1 ，但该操作 不能 连续使用，如果在台阶第 0 级也不能使用。
+向上走到台阶 i + 2jump 处，然后 jump 变为 jump + 1 。
+请你返回虎老师到达台阶 k 处的总方案数。
+
+注意 ，虎老师可能到达台阶 k 处后，通过一些操作重新回到台阶 k 处，这视为不同的方案。
+
+```cpp
+class Solution {
+public:
+    int waysToReachStair(int k) {        
+        long long c[31][31];
+        c[0][0] = 1;
+        for (int i = 1; i <= 30; i++) {
+            c[i][0] = 1;
+            for (int j = 1; j <= 30; j++) c[i][j] = c[i-1][j-1] + c[i-1][j];
+        }
+        int ans = 0;
+        for (int i = 0; i <= 30; i++) {
+            for (int j = 0; j <= i+1; j++) {
+                if ((1LL << i) - j == k) ans += c[i+1][j];
+            }
+        }
+        return ans;
+    }
+};
+```
+
