@@ -459,3 +459,65 @@ mt19937_64 rng(chrono::steady_clock::now().time_since_epoch().count());
 - 1e9：O(n) O(logn)
 - 1e18：O(logn)
 ```
+
+
+
+
+
+
+
+
+
+
+
+using pii = pair<int, int>;
+class Solution {
+public:
+    vector<int> dijkstra(const vector<vector<pii>> &g, int n, int start) {
+        vector<int> dis(n, INT_MAX); dis[start] = 0;
+        priority_queue<pii, vector<pii>, greater<>> q; q.emplace(0, start);
+        while (!q.empty()) {
+            auto [d, x] = q.top(); q.pop();
+            if (d > dis[x]) continue;
+            for (auto [y, nd] : g[x]) {
+                nd += d; if (nd < dis[y]) { dis[y] = nd; q.emplace(nd, y); }
+            }
+        }
+        return dis;
+    }
+
+    vector<int> minimumTime(int n, vector<vector<int>>& edges, vector<int>& disappear) {
+        map<pii, int> m;
+        for (auto &e : edges) {
+            pii k = {e[0], e[1]};
+            int w = e[2];
+            if (m.contains(k)) m[k] = min(m[k], w);
+            else m[k] = w;            
+        }
+
+        edges.clear();
+        for (auto &[k, v] : m) edges.push_back({k.first, k.second, v});
+
+        vector<vector<pii>> g(n);
+        for (auto &e : edges) {
+            int u = e[0], v = e[1], d = e[2];
+            g[u].emplace_back(v, d); g[v].emplace_back(u, d);
+        }
+
+        auto dis = dijkstra(g, n, 0);
+        vector<int> removed(n, false);
+        for (int i = 0; i < n; i++) if (dis[i] != INT_MAX && dis[i] >= disappear[i]) removed[i] = true;
+        
+        vector<vector<pii>> g2(n);
+        for (auto &e : edges) {
+            int u = e[0], v = e[1], d = e[2];
+            if (removed[u] || removed[v]) continue;
+            g2[u].emplace_back(v, d); g2[v].emplace_back(u, d);
+        }
+
+        auto dis2 = dijkstra(g2, n, 0);
+        vector<int> ans(n, -1);
+        for (int i = 0; i < n; i++) if (dis2[i] != INT_MAX && !removed[i]) ans[i] = dis2[i];
+        return ans;
+    }
+};
