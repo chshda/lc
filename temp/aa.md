@@ -1400,6 +1400,132 @@ public:
 };
 ```
 
+## 第 395 场周赛
+
+### 3131. 找出与数组相加的整数 I
+
+给你两个长度相等的数组 nums1 和 nums2。
+
+数组 nums1 中的每个元素都与变量 x 所表示的整数相加。如果 x 为负数，则表现为元素值的减少。
+
+在与 x 相加后，nums1 和 nums2 相等 。当两个数组中包含相同的整数，并且这些整数出现的频次相同时，两个数组 相等 。
+
+返回整数 x 。
+
+```cpp
+class Solution {
+public:
+    int addedInteger(vector<int>& nums1, vector<int>& nums2) {
+        return ranges::min(nums2) - ranges::min(nums1);
+    }
+};
+```
+
+### 3132. 找出与数组相加的整数 II
+
+给你两个整数数组 nums1 和 nums2。
+
+从 nums1 中移除两个元素，并且所有其他元素都与变量 x 所表示的整数相加。如果 x 为负数，则表现为元素值的减少。
+
+执行上述操作后，nums1 和 nums2 相等 。当两个数组中包含相同的整数，并且这些整数出现的频次相同时，两个数组 相等 。
+
+返回能够实现数组相等的 最小 整数 x 。
+
+```cpp
+class Solution {
+public:
+    int minimumAddedInteger(vector<int>& nums1, vector<int>& nums2) {
+        ranges::sort(nums1);
+        ranges::sort(nums2);
+        for (int i = 2; i >= 0; i--) {
+            int d = nums2[0] - nums1[i];
+            for (int j = i, k = 0; j < nums1.size(); j++) {
+                if (nums1[j] + d == nums2[k] && ++k == nums2.size()) return d;
+            }
+        }
+        return -1;
+    }
+};
+```
+
+### 3133. 数组最后一个元素的最小值
+
+给你两个整数 n 和 x 。你需要构造一个长度为 n 的 正整数 数组 nums ，对于所有 0 <= i < n - 1 ，满足 nums[i + 1] 大于 nums[i] ，并且数组 nums 中所有元素的按位 AND 运算结果为 x 。
+
+返回 nums[n - 1] 可能的 最小 值。
+
+```cpp
+class Solution {
+public:
+    long long minEnd(int n, int x) {
+        n--;
+        long long ans = x, a = x; // 把x转为long long，不然移位可能溢出
+        for (int i = 0; n; n >>= 1) {
+            while (a >> i & 1) i++;
+            if (n & 1) ans |= 1LL << i; // 必须1LL，不然移位会溢出
+            i++;
+        }
+        return ans;
+    }
+};
+```
+
+### 3134. 找出唯一性数组的中位数
+
+给你一个整数数组 nums 。数组 nums 的 唯一性数组 是一个按元素从小到大排序的数组，包含了 nums 的所有
+非空子数组中
+不同元素的个数。
+
+换句话说，这是由所有 0 <= i <= j < nums.length 的 distinct(nums[i..j]) 组成的递增数组。
+
+其中，distinct(nums[i..j]) 表示从下标 i 到下标 j 的子数组中不同元素的数量。
+
+返回 nums 唯一性数组 的 中位数 。
+
+注意，数组的 中位数 定义为有序数组的中间元素。如果有两个中间元素，则取值较小的那个。
+
+```cpp
+// 二分找第k小/大的数（包括中位数）
+// 小 ...... k ...... 大
+//              x (考虑比<=x的数的个数，考虑这个数>=k的结论)
+// 0 ......0 1 1 .... 1
+// 满足二分要求
+class Solution {
+public:
+    int medianOfUniquenessArray(vector<int>& nums) {
+        int n = nums.size();
+        long long t = ((long long)n * (n + 1) / 2 + 1) / 2; // 二分找中位数
+        auto ok = [&](int x) {            
+            long long cnt = 0;
+            unordered_map<int, int> m;            
+            for (int i = 0, j = 0; j < n; j++) {
+                m[nums[j]]++;
+                while (m.size() > x) {
+                    int tem = nums[i];
+                    m[tem]--, i++;
+                    if (m[tem] == 0) m.erase(tem);
+                }
+                cnt += j - i + 1;
+                if (cnt >= t) return true;
+            }
+            return cnt >= t;
+        };
+
+        int st = 1, ed = n;
+        while (st < ed) {
+            int md = (st + ed) >> 1;
+            if (ok(md)) ed = md;
+            else st = md + 1;
+        }            
+        return st;
+    }
+};
+```
+
+
+
+
+
 ## 第 396 场周赛
 
 ### 3136. 有效单词
