@@ -1400,6 +1400,130 @@ public:
 };
 ```
 
+## 第 394 场周赛
+
+### 3120. 统计特殊字母的数量 I
+
+给你一个字符串 word。如果 word 中同时存在某个字母的小写形式和大写形式，则称这个字母为 特殊字母 。
+
+返回 word 中 特殊字母 的数量。
+
+```cpp
+class Solution {
+public:
+    int numberOfSpecialChars(string word) {
+        int ans = 0;
+        for (int i = 0; i < 26; i++) ans += word.find('a'+i) != -1 && word.find('A'+i) != -1;
+        return ans;        
+    }
+};
+```
+
+### 3121. 统计特殊字母的数量 II
+
+给你一个字符串 word。如果 word 中同时出现某个字母 c 的小写形式和大写形式，并且 每个 小写形式的 c 都出现在第一个大写形式的 c 之前，则称字母 c 是一个 特殊字母 。
+
+返回 word 中 特殊字母 的数量。
+
+```cpp
+class Solution {
+public:
+    int numberOfSpecialChars(string word) {
+        int ans = 0;
+        for (int i = 0; i < 26; i++) {            
+            int id1 = word.find_last_of('a'+i);
+			int id2 = word.find_first_of('A'+i);
+			ans += id1 != -1 && id2 != -1 && id1 < id2;
+        }
+        return ans;        
+    }
+};
+```
+
+### 3122. 使矩阵满足条件的最少操作次数
+
+给你一个大小为 m x n 的二维矩形 grid 。每次 操作 中，你可以将 任一 格子的值修改为 任意 非负整数。完成所有操作后，你需要确保每个格子 grid[i][j] 的值满足：
+
+* 如果下面相邻格子存在的话，它们的值相等，也就是 grid[i][j] == grid[i + 1][j]（如果存在）。
+* 如果右边相邻格子存在的话，它们的值不相等，也就是 grid[i][j] != grid[i][j + 1]（如果存在）。
+  
+请你返回需要的 最少 操作数目。
+
+```cpp
+class Solution {
+public:
+    int minimumOperations(vector<vector<int>>& grid) {
+        int m = grid.size(), n = grid[0].size();
+        vector<vector<int>> dp(n+1, vector<int>(10));
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j <= 9; j++) {
+                int mn = INT_MAX;
+                for (int k = 0; k <= 9; k++) if (k != j) mn = min(mn, dp[i][k]);                
+
+                dp[i+1][j] = mn;
+                for (int k = 0; k < m; k++) dp[i+1][j] += grid[k][i] != j;
+            }
+        }
+        return ranges::min(dp[n]);
+    }
+};
+```
+
+### 3123. 最短路径中的边
+
+给你一个 n 个节点的无向带权图，节点编号为 0 到 n - 1 。图中总共有 m 条边，用二维数组 edges 表示，其中 edges[i] = [ai, bi, wi] 表示节点 ai 和 bi 之间有一条边权为 wi 的边。
+
+对于节点 0 为出发点，节点 n - 1 为结束点的所有最短路，你需要返回一个长度为 m 的 boolean 数组 answer ，如果 edges[i] 至少 在其中一条最短路上，那么 answer[i] 为 true ，否则 answer[i] 为 false 。
+
+请你返回数组 answer 。
+
+注意，图可能不连通。
+
+```cpp
+using pii = pair<int, int>;
+using tii = tuple<int, int, int>;
+class Solution {
+public:
+    vector<bool> findAnswer(int n, vector<vector<int>>& edges) {
+        vector<vector<tii>> g(n);
+        for (int i = 0; i < edges.size(); i++) {
+            auto &e = edges[i];
+            int u = e[0], v = e[1], w = e[2];
+            g[u].emplace_back(v, w, i);
+            g[v].emplace_back(u, w, i);
+        }
+
+        vector<int> dis(n, INT_MAX);        
+        priority_queue<pii, vector<pii>, greater<>> q;
+        dis[0] = 0, q.emplace(0, 0);
+        while (!q.empty()) {
+            auto [d, x] = q.top(); q.pop();
+            if (d > dis[x]) continue;
+            for (auto [y, w, _] : g[x]) {
+                int nd = d + w;
+                if (nd < dis[y]) dis[y] = nd, q.emplace(nd, y);
+            }
+        }
+
+        vector<bool> ans(edges.size());
+        if (dis[n-1] == INT_MAX) return ans;
+
+        vector<bool> vs(n);
+        function<void(int)> dfs = [&](int x) {
+            vs[x] = true;
+            for (auto [y, w, i] : g[x]) {
+                if (dis[y] + w == dis[x]) {
+                    ans[i] = true;
+                    if (!vs[y]) dfs(y);
+                }
+            }
+        };
+        dfs(n-1);
+        return ans;
+    }
+};
+```
+
 ## 第 395 场周赛
 
 ### 3131. 找出与数组相加的整数 I
