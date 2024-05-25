@@ -1400,6 +1400,139 @@ public:
 };
 ```
 
+## 第 393 场周赛
+
+### 3114. 替换字符可以得到的最晚时间
+
+给你一个字符串 s，表示一个 12 小时制的时间格式，其中一些数字（可能没有）被 "?" 替换。
+
+12 小时制时间格式为 "HH:MM" ，其中 HH 的取值范围为 00 至 11，MM 的取值范围为 00 至 59。最早的时间为 00:00，最晚的时间为 11:59。
+
+你需要将 s 中的 所有 "?" 字符替换为数字，使得结果字符串代表的时间是一个 有效 的 12 小时制时间，并且是可能的 最晚 时间。
+
+返回结果字符串。
+
+```cpp
+class Solution {
+public:
+    string findLatestTime(string s) {
+        auto ok = [&](int t, string s) {
+            return (s[0] == '?' || s[0]-'0' == t / 10) &&
+                   (s[1] == '?' || s[1]-'0' == t % 10);
+        };
+
+        int h, m;
+        for (h = 11; h >= 0; h--) if (ok(h, s.substr(0, 2))) break;
+        for (m = 59; m >= 0; m--) if (ok(m, s.substr(3, 2))) break;
+
+        char ans[6];
+        sprintf(ans, "%02d:%02d", h, m);
+        return string(ans);
+    }
+};
+```
+
+### 3115. 质数的最大距离
+
+给你一个整数数组 nums。
+
+返回两个（不一定不同的）质数在 nums 中 下标 的 最大距离。
+
+```cpp
+class Solution {
+public:    
+    bool isprime(int x) {
+        if (x < 2) return false;
+        for (int i = 2; i * i <= x; i++) {
+            if (x % i == 0) return false;
+        }
+        return true;
+    }
+
+    int maximumPrimeDifference(vector<int>& nums) {
+        vector<int> ids;
+        for(int i = 0; i < nums.size(); i++) if (isprime(nums[i])) ids.push_back(i);
+        return ranges::max(ids) - ranges::min(ids);
+    }
+};
+```
+
+### 3116. 单面值组合的第 K 小金额
+
+给你一个整数数组 coins 表示不同面额的硬币，另给你一个整数 k 。
+
+你有无限量的每种面额的硬币。但是，你 不能 组合使用不同面额的硬币。
+
+返回使用这些硬币能制造的 第 kth 小 金额。
+
+```cpp
+class Solution {
+public:
+    long long findKthSmallest(vector<int>& coins, int k) {
+        int n = coins.size();
+        auto ok = [&](long long x) {      
+            long long cnt = 0;      
+            for (int i = 1; i < 1 << n; i++) { // 容斥原理，选奇数个数时符号位+，否则为-
+                long long lcm_res = 1;
+                for (int j = 0; j < n; j++) if (i >> j & 1) lcm_res = lcm(lcm_res, coins[j]);
+                long long sign = __builtin_popcount(i) & 1 ? 1 : -1;
+                cnt += x / lcm_res * sign;
+            }
+            return cnt >= k;
+        };
+        long long st = k, ed = (long long)ranges::min(coins) * k;
+        while (st < ed) {
+            auto md = (st + ed) >> 1;
+            if (ok(md)) ed = md;
+            else st = md + 1;
+        }
+        return st;
+    }
+};
+```
+
+### 3117. 划分数组得到最小的值之和
+
+给你两个数组 nums 和 andValues，长度分别为 n 和 m。
+
+数组的 值 等于该数组的 最后一个 元素。
+
+你需要将 nums 划分为 m 个 不相交的连续 子数组，对于第 ith 个子数组 [li, ri]，子数组元素的按位AND运算结果等于 andValues[i]，换句话说，对所有的 1 <= i <= m，nums[li] & nums[li + 1] & ... & nums[ri] == andValues[i] ，其中 & 表示按位AND运算符。
+
+返回将 nums 划分为 m 个子数组所能得到的可能的 最小 子数组 值 之和。如果无法完成这样的划分，则返回 -1 。
+
+```cpp
+class Solution {
+public:
+    int inf, n, m;
+    unordered_map<long long, int> mm;
+    
+    // 两个剪枝不要也能过
+    int dfs (int i, int j, int sum, vector<int>& nums, vector<int>& andValues){
+        if (n - i < m - j) return inf; // 剩下的数字不够了
+        if (i == n && j == m) return 0;
+        if (i == n || j == m) return inf;            
+
+        sum &= nums[i];
+        if (sum < andValues[j]) return inf; // 与更多的数字只会越来越小
+
+        long long key = (long long) i << 36 | (long long) j << 32 | sum;
+        if (mm.contains(key))return mm[key];
+                    
+        int ans = dfs(i+1, j, sum, nums, andValues);
+        if (sum == andValues[j]) ans = min(ans, dfs(i+1, j+1, -1, nums, andValues) + nums[i]);
+        return mm[key] = ans;
+    }
+
+    int minimumValueSum(vector<int>& nums, vector<int>& andValues) {
+        n = nums.size(), m = andValues.size(), inf = INT_MAX >> 1;        
+        // dfs使用function<int(int, int, int)>会超时
+        auto ans = dfs(0, 0, -1, nums, andValues);
+        return ans == inf ? -1 : ans;
+    }
+};
+```
+
 ## 第 394 场周赛
 
 ### 3120. 统计特殊字母的数量 I
