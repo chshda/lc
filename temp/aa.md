@@ -1,5 +1,116 @@
 # 题解
 
+## 第 382 场周赛
+
+### 3019. 按键变更的次数
+
+给你一个下标从 0 开始的字符串 s ，该字符串由用户输入。按键变更的定义是：使用与上次使用的按键不同的键。例如 s = "ab" 表示按键变更一次，而 s = "bBBb" 不存在按键变更。
+
+返回用户输入过程中按键变更的次数。
+
+注意：shift 或 caps lock 等修饰键不计入按键变更，也就是说，如果用户先输入字母 'a' 然后输入字母 'A' ，不算作按键变更。
+
+```cpp
+class Solution {
+public:
+    int countKeyChanges(string s) {
+        int ans = 0;
+        for (int i = 1; i < s.size(); i++) ans += tolower(s[i]) != tolower(s[i-1]);
+        return ans;
+    }
+};
+```
+
+### 3020. 子集中元素的最大数量
+
+给你一个 正整数 数组 nums 。
+
+你需要从数组中选出一个满足下述条件的子集：
+
+你可以将选中的元素放置在一个下标从 0 开始的数组中，并使其遵循以下模式：[x, x2, x4, ..., xk/2, xk, xk/2, ..., x4, x2, x]（注意，k 可以是任何 非负 的 2 的幂）。例如，[2, 4, 16, 4, 2] 和 [3, 9, 3] 都符合这一模式，而 [2, 4, 8, 4, 2] 则不符合。
+
+返回满足这些条件的子集中，元素数量的 最大值 。
+
+```cpp
+class Solution {
+public:
+    int maximumLength(vector<int>& nums) {
+        unordered_map<long long, int> m;
+        for (auto i : nums) m[i]++;
+
+        int ans = m[1] - 1 | 1; // 将m[1]转化为奇数，m[1]为0时结果为-1，不影响后续求最大值
+        m.erase(1);        
+        for (auto [k0, v] : m) {
+            int cnt = 0;
+            long long k = k0;
+            for (; m.contains(k) && m[k] >= 2; k *= k) cnt += 2; // 确保key存在时再读取，否则会插入这个元素
+            ans = max(ans, cnt + (m.contains(k) ? 1 : -1));
+        }
+        return ans;
+    }
+};
+```
+
+### 3021. Alice 和 Bob 玩鲜花游戏
+
+Alice 和 Bob 在一个长满鲜花的环形草地玩一个回合制游戏。环形的草地上有一些鲜花，Alice 到 Bob 之间顺时针有 x 朵鲜花，逆时针有 y 朵鲜花。
+
+游戏过程如下：
+
+* Alice 先行动。
+* 每一次行动中，当前玩家必须选择顺时针或者逆时针，然后在这个方向上摘一朵鲜花。
+* 一次行动结束后，如果所有鲜花都被摘完了，那么 当前 玩家抓住对手并赢得游戏的胜利。
+  
+给你两个整数 n 和 m ，你的任务是求出满足以下条件的所有 (x, y) 对：
+
+* 按照上述规则，Alice 必须赢得游戏。
+* Alice 顺时针方向上的鲜花数目 x 必须在区间 [1,n] 之间。
+* Alice 逆时针方向上的鲜花数目 y 必须在区间 [1,m] 之间。
+  
+请你返回满足题目描述的数对 (x, y) 的数目。
+
+```cpp
+class Solution {
+public:
+    long long flowerGame(int n, int m) {
+        long long a = (n + 1) / 2, b = n - a;
+        long long c = (m + 1) / 2, d = m - c;
+        return a * d + b * c;
+    }
+};
+```
+
+### 3022. 给定操作次数内使剩余元素的或值最小
+
+给你一个下标从 0 开始的整数数组 nums 和一个整数 k 。
+
+一次操作中，你可以选择 nums 中满足 0 <= i < nums.length - 1 的一个下标 i ，并将 nums[i] 和 nums[i + 1] 替换为数字 nums[i] & nums[i + 1] ，其中 & 表示按位 AND 操作。
+
+请你返回 至多 k 次操作以内，使 nums 中所有剩余元素按位 OR 结果的 最小值 。
+
+```cpp
+// 位运算，高位到低位处理，贪心尽量把高位变为0
+// 处理到低位比如第2位时，同时考虑前面的高位和当前位，让他们都变成0，通过mask记录哪些位是可以变为0的
+// 计算把几个数字变为0的操作次数时，如果一段子数组and为0，操作次数为n-1，如果and不为0，需要其他的一个0来额外变为0，操作次数位n
+class Solution {
+public:
+    int minOrAfterOperations(vector<int>& nums, int k) {
+        int ans = 0, mask = 0;
+        for (int i = 29; i >= 0; i--) {
+            mask |= 1 << i;
+            int cnt = 0, and_res = -1;
+            for (auto j : nums) {
+                and_res &= j & mask;
+                if (and_res == 0) and_res = -1;
+                else cnt++;
+            }
+            if (cnt > k) ans |= 1 << i, mask ^= 1 << i;
+        }        
+        return ans;
+    }
+};
+```
+
 ## 第 383 场周赛
 
 ### 3028. 边界上的蚂蚁
