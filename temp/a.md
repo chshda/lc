@@ -48,11 +48,11 @@ using ll = long long;
 
 struct STN { ll val, lazy; };
 struct ST {
-    ll n;
+    ll mn, mx;
     vector<STN> a;
-    ST(ll n) : n(n), a(vector<STN>(n * 4)) {};
+    ST(ll mn = 1, ll mx = 1e6) : mn(mn), mx(mx), a(vector<STN>((mx - mn) * 4)) {};
 
-    void increase(ll l, ll r, ll d) { increase(1, 1, n, l, r, d); }
+    void increase(ll l, ll r, ll d) { increase(1, mn, mx, l, r, d); }
     inline void increase(ll k, ll l, ll r, ll L, ll R, ll D) {
         if (L <= l && r <= R) {
             a[k].val += (r - l + 1) * D, a[k].lazy += D;
@@ -76,7 +76,7 @@ struct ST {
         ll lc = k << 1, rc = lc | 1;
         a[k].val = a[lc].val + a[rc].val;
     }
-    ll query(ll l, ll r) { return query(1, 1, n, l, r); }
+    ll query(ll l, ll r) { return query(1, mn, mx, l, r); }
     inline ll query(ll k, ll l, ll r, ll L, ll R) {
         if (L <= l && r <= R) return a[k].val;
         pushdown(k, l, r);
