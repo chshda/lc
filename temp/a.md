@@ -39,6 +39,55 @@ struct BIT {
 };
 ```
 
+## 线段树
+
+线段树维护区间和，支持区间增加/减少和区间求和。静态开点。
+
+```cpp
+using ll = long long;
+
+struct STN { ll val, lazy; };
+struct ST { // SegTree
+    ll n;
+    vector<STN> a;
+    ST(ll n) : n(n), a(vector<STN>(n * 4)) {};
+
+    void increase(ll l, ll r, ll d) { increase(1, 1, n, l, r, d); }
+    void increase(ll k, ll l, ll r, ll L, ll R, ll D) {
+        if (L <= l && r <= R) {
+            a[k].val += (r - l + 1) * D, a[k].lazy += D;
+            return;
+        }
+        pushdown(k, l, r);
+        ll lc = k << 1, rc = lc | 1, m = (l + r) >> 1;
+        if (m >= L) increase(lc, l, m, L, R, D);
+        if (R >= m+1) increase(rc, m+1, r, L, R, D);
+        pushup(k);
+    }
+    void pushdown(ll k, ll l, ll r) {
+        auto &lazy = a[k].lazy;
+        if (!lazy) return;
+        ll lc = k << 1, rc = lc | 1, m = (l + r) >> 1;
+        a[lc].lazy += lazy, a[lc].val += (m - l + 1) * lazy;
+        a[rc].lazy += lazy, a[rc].val += (r - (m+1) + 1) * lazy;
+        lazy = 0;
+    }
+    void pushup(ll k) {
+        ll lc = k << 1, rc = lc | 1;
+        a[k].val = a[lc].val + a[rc].val;
+    }
+    ll query(ll l, ll r) { return query(1, 1, n, l, r); }
+    ll query(ll k, ll l, ll r, ll L, ll R) {
+        if (L <= l && r <= R) return a[k].val;
+        pushdown(k, l, r);
+        ll lc = k << 1, rc = lc | 1, m = (l + r) >> 1, ans = 0;
+        if (m >= L) ans += query(lc, l, m, L, R);
+        if (R >= m+1) ans += query(rc, m+1, r, L, R);
+        return ans;
+    }
+};
+```
+
 
 
 ## 语法
