@@ -1,5 +1,67 @@
 # 题解
 
+## 第 381 场周赛
+
+### 3014. 输入单词需要的最少按键次数 I
+
+给你一个字符串 word，由 不同 小写英文字母组成。
+
+电话键盘上的按键与 不同 小写英文字母集合相映射，可以通过按压按键来组成单词。例如，按键 2 对应 ["a","b","c"]，我们需要按一次键来输入 "a"，按两次键来输入 "b"，按三次键来输入 "c"。
+
+现在允许你将编号为 2 到 9 的按键重新映射到 不同 字母集合。每个按键可以映射到 任意数量 的字母，但每个字母 必须 恰好 映射到 一个 按键上。你需要找到输入字符串 word 所需的 最少 按键次数。
+
+返回重新映射按键后输入 word 所需的 最少 按键次数。
+
+下面给出了一种电话键盘上字母到按键的映射作为示例。注意 1，*，# 和 0 不 对应任何字母。
+
+```cpp
+// 同3016
+```
+
+### 3015. 按距离统计房屋对数目 I
+
+给你三个 正整数 n 、x 和 y 。
+
+在城市中，存在编号从 1 到 n 的房屋，由 n 条街道相连。对所有 1 <= i < n ，都存在一条街道连接编号为 i 的房屋与编号为 i + 1 的房屋。另存在一条街道连接编号为 x 的房屋与编号为 y 的房屋。
+
+对于每个 k（1 <= k <= n），你需要找出所有满足要求的 房屋对 [house1, house2] ，即从 house1 到 house2 需要经过的 最少 街道数为 k 。
+
+返回一个下标从 1 开始且长度为 n 的数组 result ，其中 result[k] 表示所有满足要求的房屋对的数量，即从一个房屋到另一个房屋需要经过的 最少 街道数为 k 。
+
+注意，x 与 y 可以 相等 。
+
+```cpp
+```
+
+### 3016. 输入单词需要的最少按键次数 II
+
+给你一个字符串 word，由 不同 小写英文字母组成。
+
+电话键盘上的按键与 不同 小写英文字母集合相映射，可以通过按压按键来组成单词。例如，按键 2 对应 ["a","b","c"]，我们需要按一次键来输入 "a"，按两次键来输入 "b"，按三次键来输入 "c"。
+
+现在允许你将编号为 2 到 9 的按键重新映射到 不同 字母集合。每个按键可以映射到 任意数量 的字母，但每个字母 必须 恰好 映射到 一个 按键上。你需要找到输入字符串 word 所需的 最少 按键次数。
+
+返回重新映射按键后输入 word 所需的 最少 按键次数。
+
+下面给出了一种电话键盘上字母到按键的映射作为示例。注意 1，*，# 和 0 不 对应任何字母。
+
+```cpp
+class Solution {
+public:
+    int minimumPushes(string word) {
+        vector<int> cnt(26);
+        for (auto i : word) cnt[i-'a']++;
+        ranges::sort(cnt, greater<>());
+        int ans = 0;
+        for (int i = 0, j = 1; i < 26; i++) {
+            if (i > 0 && i % 8 == 0) j++;
+            ans += j * cnt[i];            
+        }
+        return ans;
+    }
+};
+```
+
 ## 第 382 场周赛
 
 ### 3019. 按键变更的次数
@@ -2245,3 +2307,138 @@ public:
 };
 ```
 
+## 第 399 场周赛
+
+### 100323. 优质数对的总数 I
+
+给你两个整数数组 nums1 和 nums2，长度分别为 n 和 m。同时给你一个正整数 k。
+
+如果 nums1[i] 可以被 nums2[j] * k 整除，则称数对 (i, j) 为 优质数对（0 <= i <= n - 1, 0 <= j <= m - 1）。
+
+返回 优质数对 的总数。
+
+```cpp
+// 同100321
+```
+
+### 100326. 压缩字符串 III
+
+给你一个字符串 word，请你使用以下算法进行压缩：
+
+从空字符串 comp 开始。当 word 不为空 时，执行以下操作：
+
+* 移除 word 的最长单字符前缀，该前缀由单一字符 c 重复多次组成，且该前缀长度 最多 为 9 。
+* 将前缀的长度和字符 c 追加到 comp 。
+
+返回字符串 comp 。
+
+```cpp
+class Solution {
+public:
+    string compressedString(string word) {
+        string ans;
+        char c;
+        for (int i = 0, cnt = 0; i < word.size(); i++) {
+            if (cnt == 0) c = word[i], cnt = 1;
+            else if (c == word[i]) {
+                if (++cnt == 9) {
+                    ans += '9', ans += c; cnt = 0;
+                }
+            } else {
+                ans += to_string(cnt) + c, c = word[i], cnt = 1;
+            }
+            if (i == word.size()-1 && cnt > 0) ans += to_string(cnt) + c;
+        }
+        return ans;
+    }
+};
+```
+
+### 100321. 优质数对的总数 II
+
+给你两个整数数组 nums1 和 nums2，长度分别为 n 和 m。同时给你一个正整数 k。
+
+如果 nums1[i] 可以被 nums2[j] * k 整除，则称数对 (i, j) 为 优质数对（0 <= i <= n - 1, 0 <= j <= m - 1）。
+
+返回 优质数对 的总数。
+
+```cpp
+class Solution {
+public:
+    long long numberOfPairs(vector<int>& nums1, vector<int>& nums2, int k) {
+        unordered_map<long long, long long> m;
+        for (auto i : nums2) m[(long long) i * k]++;
+        long long ans = 0;
+        for (auto i : nums1) {
+            for (long long j = 1; j * j <= i; j++) {
+                if (i % j == 0) {
+                    ans += m[j];
+                    if (j != i / j) ans += m[i/j];
+                }
+            }
+        }
+        return ans;
+    }
+};
+```
+
+### 100306. 不包含相邻元素的子序列的最大和
+
+给你一个整数数组 nums 和一个二维数组 queries，其中 queries[i] = [posi, xi]。
+
+对于每个查询 i，首先将 nums[posi] 设置为 xi，然后计算查询 i 的答案，该答案为 nums 中 不包含相邻元素 的子序列的 最大 和。
+
+返回所有查询的答案之和。
+
+由于最终答案可能非常大，返回其对 109 + 7 取余 的结果。
+
+子序列 是指从另一个数组中删除一些或不删除元素而不改变剩余元素顺序得到的数组。
+
+```cpp
+using ll = long long;
+static const int mod = 1e9 + 7;
+
+struct SegTreeNode { ll v00, v01, v10, v11; };
+struct SegTree {
+    ll n;
+    vector<SegTreeNode> a;
+
+    SegTree(ll n) : n(n), a(vector<SegTreeNode>(n * 4)) {};
+
+    void update(ll id, ll d) {
+        update(1, 1, n, id, id, d);
+    }
+    void update(ll k, ll l, ll r, ll L, ll R, ll d) {
+        if (l == r) {
+            a[k].v00 = a[k].v01 = a[k].v10 = 0, a[k].v11 = d;
+            return;
+        }
+        int lc = k << 1, rc = lc | 1, md = (l + r) >> 1;
+        if (md >= L) update(lc, l, md, L, R, d);
+        if (md+1 <= R) update(rc, md+1, r, L, R, d);
+        a[k].v00 = ranges::max({a[lc].v00+a[rc].v00, a[lc].v00+a[rc].v10, a[lc].v01+a[rc].v00});
+        a[k].v01 = ranges::max({a[lc].v00+a[rc].v01, a[lc].v00+a[rc].v11, a[lc].v01+a[rc].v01});
+        a[k].v10 = ranges::max({a[lc].v10+a[rc].v00, a[lc].v10+a[rc].v10, a[lc].v11+a[rc].v00});
+        a[k].v11 = ranges::max({a[lc].v10+a[rc].v01, a[lc].v10+a[rc].v11, a[lc].v11+a[rc].v01});
+    }
+    ll query() {
+        return ranges::max({a[1].v00, a[1].v01, a[1].v10, a[1].v11});
+    }
+};
+
+class Solution {
+public:
+    int maximumSumSubsequence(vector<int>& nums, vector<vector<int>>& queries) {
+        int n = nums.size();
+        SegTree tr(n);
+        for (int i = 0; i < n; i++) tr.update(i+1, nums[i]);
+        long long ans = 0;
+        for (auto q : queries) {
+            int pos = q[0] + 1, x = q[1];
+            tr.update(pos, x);
+            ans += tr.query();
+        }
+        return ans % mod;
+    }
+};
+```

@@ -5,6 +5,7 @@
         "array": "cpp",
         "ostream": "cpp",
         "limits": "cpp",
-        "random": "cpp"
+        "random": "cpp",
+        "concepts": "cpp"
     }
 }
