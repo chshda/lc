@@ -1,0 +1,45 @@
+body {
+    width: 100vw;
+    height: 100vh;
+    background-color: black;
+    display: flex;
+}
+
+.box {
+    color: #66ddf7;
+    margin: auto;
+    padding: 5vw;
+    font-size: 5vw;
+    border-radius: 2vw;
+    position: relative;
+    overflow: hidden;
+    z-index: 0;
+}
+
+@keyframes rotate {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.box::before {
+    width: 300%;
+    height: 300%;
+    background-color: #22292f;
+    content: ' ';
+    position: absolute;
+    top: -100%;
+    left: -100%;
+    z-index: -2;
+    background-image: conic-gradient(transparent, #66ddf7, transparent 30%);
+    animation: rotate 5s linear infinite;
+}
+
+.box::after {
+    content: ' ';
+    inset: 0.5vw;
+    background-color: black;
+    position: absolute;
+    border-radius: 2vw;
+    z-index: -1;
+}
