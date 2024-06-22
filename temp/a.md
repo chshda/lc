@@ -152,8 +152,12 @@ sort(a.begin(), a.end(), [](auto &a, auto &b) { return a < b; });
 *max_element(a.begin(), a.end()); // min_element same
 *max_element(a.begin(), a.end(), [](auto &a, auto &b) { return a < b; });
 
-accumulate(a.begin(), a.end(), 0);
+accumulate(a.begin(), a.end(), 0LL);
 accumulate(a.begin(), a.end(), 1, [](int tot, int cur) { return tot * cur; });
+
+ranges::sort(a);
+ranges::max(a);
+auto mx = max({a, b, c});
 
 a.erase(0, a.find_first_not_of('0')); // 去除前导0
 iota(a.begin(), a.end(), 5); // 从5开始递增给a赋值
