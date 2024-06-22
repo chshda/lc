@@ -2442,3 +2442,174 @@ public:
     }
 };
 ```
+
+
+
+## 第 402 场周赛
+
+### 3184. 构成整天的下标对数目 I
+
+给你一个整数数组 hours，表示以 小时 为单位的时间，返回一个整数，表示满足 i < j 且 hours[i] + hours[j] 构成 整天 的下标对 i, j 的数目。
+
+整天 定义为时间持续时间是 24 小时的 整数倍 。
+
+例如，1 天是 24 小时，2 天是 48 小时，3 天是 72 小时，以此类推。
+
+```cpp
+class Solution {
+public:
+    int countCompleteDayPairs(vector<int>& hours) {
+        int ans = 0, n = hours.size();
+        for (int i = 0; i < n; i++) for (int j = i+1; j < n; j++) ans += (hours[i] + hours[j]) % 24 == 0;
+        return ans;
+    }
+};
+```
+
+### 3185. 构成整天的下标对数目 II
+
+题目同 3184 但是数据更大。
+
+```cpp
+class Solution {
+public:
+    long long countCompleteDayPairs(vector<int>& hours) {
+        long long ans = 0;
+        vector<int> a(24);
+        for (auto i : hours) ans += a[(24-i%24)%24], a[i%24]++;
+        return ans;
+    }
+};
+```
+
+### 3186. 施咒的最大总伤害
+
+一个魔法师有许多不同的咒语。
+
+给你一个数组 power ，其中每个元素表示一个咒语的伤害值，可能会有多个咒语有相同的伤害值。
+
+已知魔法师使用伤害值为 power[i] 的咒语时，他们就 不能 使用伤害为 power[i] - 2 ，power[i] - 1 ，power[i] + 1 或者 power[i] + 2 的咒语。
+
+每个咒语最多只能被使用 一次 。
+
+请你返回这个魔法师可以达到的伤害值之和的 最大值 。
+
+```cpp
+class Solution {
+public:
+    long long maximumTotalDamage(vector<int>& power) {
+        map<int, int> m;
+        for (auto i : power) m[i]++;
+
+        vector<pair<int, int>> v(m.begin(), m.end());
+
+        int n = v.size();
+        vector<long long> dp(n + 1);
+        
+        for (int i = 0, j = 0; i < n; i++) {
+            auto &[x, c] = v[i];
+            while (j < i && v[j].first < x - 2) j++;
+            dp[i+1] = max(dp[i], dp[j] + (long long)x * c);
+        }
+        return dp[n];
+    }
+};
+```
+
+### 3187. 数组中的峰值
+
+数组 arr 中 大于 前面和后面相邻元素的元素被称为 峰值 元素。
+
+给你一个整数数组 nums 和一个二维整数数组 queries 。
+
+你需要处理以下两种类型的操作：
+
+- queries[i] = [1, li, ri] ，求出子数组 nums[li..ri] 中 峰值 元素的数目。
+- queries[i] = [2, indexi, vali] ，将 nums[indexi] 变为 vali 。
+  
+请你返回一个数组 answer ，它依次包含每一个第一种操作的答案。
+
+注意：子数组中 第一个 和 最后一个 元素都 不是 峰值元素。
+
+```cpp
+using ll = int;
+
+struct STN { ll sum; };
+struct ST {
+    ll mn, mx;
+    vector<STN> a;
+    ST(ll mn = 0, ll mx = 1e5) : mn(mn), mx(mx), a(vector<STN>((mx - mn) * 4)){};
+
+    void build(vector<ll> &v) { build(1, mn, mx, v); }
+    void replace(ll l, ll r, ll d) { replace(1, mn, mx, l, r, d); }
+    void increase(ll l, ll r, ll d) { increase(1, mn, mx, l, r, d); }
+    ll query(ll l, ll r) { return query(1, mn, mx, l, r); }
+
+    void build(ll k, ll l, ll r, vector<ll> &v) {
+        if (l == r) { a[k] = {v[l]}; return; }
+        ll lc = k << 1, rc = lc | 1, m = (l + r) >> 1;
+        build(lc, l, m, v);
+        build(rc, m + 1, r, v);
+        pushup(k, lc, rc);
+    }
+    void replace(ll k, ll l, ll r, ll L, ll R, ll D) {
+        if (l == r) { a[k].sum = (r - l + 1) * D; return; }
+        ll lc = k << 1, rc = lc | 1, m = (l + r) >> 1;
+        if (m >= L) replace(lc, l, m, L, R, D);
+        if (m + 1 <= R) replace(rc, m + 1, r, L, R, D);
+        pushup(k, lc, rc);
+    }
+    void increase(ll k, ll l, ll r, ll L, ll R, ll D) {
+        if (l == r) { a[k].sum += (r - l + 1) * D; return; }
+        ll lc = k << 1, rc = lc | 1, m = (l + r) >> 1;
+        if (m >= L) increase(lc, l, m, L, R, D);
+        if (m + 1 <= R) increase(rc, m + 1, r, L, R, D);
+        pushup(k, lc, rc);
+    }
+    inline void pushup(ll k, ll lc, ll rc) {
+        a[k].sum = a[lc].sum + a[rc].sum;
+    }
+    ll query(ll k, ll l, ll r, ll L, ll R) {
+        if (L <= l && r <= R) return a[k].sum;
+        ll lc = k << 1, rc = lc | 1, m = (l + r) >> 1, ans = 0;
+        if (m >= L) ans += query(lc, l, m, L, R);
+        if (m + 1 <= R) ans += query(rc, m + 1, r, L, R);
+        return ans;
+    }
+};
+
+class Solution {
+   public:
+    vector<int> countOfPeaks(vector<int> &a, vector<vector<int>> &queries) {
+        int n = a.size();
+        ST st(0, n - 1);
+
+        auto v = vector<int>(n);
+        for (int i = 1; i < n - 1; i++) v[i] = a[i] > a[i - 1] && a[i] > a[i + 1];
+        st.build(v);
+
+        auto f = [&](int id) {
+            auto ok = id - 1 >= 0 && id + 1 < n;
+            if (!ok) return;
+            int nv = a[id] > a[id - 1] && a[id] > a[id + 1] ? 1 : 0;
+            st.replace(id, id, nv);
+        };
+
+        vector<int> ans;
+        for (auto &q : queries) {
+            int t = q[0];
+            if (t == 1) {
+                if (q[1] + 1 <= q[2] - 1)
+                    ans.push_back(st.query(q[1] + 1, q[2] - 1));
+                else
+                    ans.push_back(0);
+            } else {
+                int i = q[1], val = q[2];
+                a[i] = val;
+                for (int j = i-1; j <= i+1; j++) f(j);
+            }
+        }
+        return ans;
+    }
+};
+```
