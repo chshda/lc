@@ -43,6 +43,56 @@ struct BIT {
 
 线段树维护区间和，支持区间增加/减少和区间求和。静态开点。
 
+不带lazy优化。
+
+```cpp
+using ll = long long;
+
+struct STN { ll sum; };
+struct ST {
+    ll mn, mx;
+    vector<STN> a;
+    ST(ll mn = 0, ll mx = 1e5) : mn(mn), mx(mx), a(vector<STN>((mx - mn) * 4)){};
+
+    void build(vector<ll> &v) { build(1, mn, mx, v); }
+    void replace(ll l, ll r, ll d) { replace(1, mn, mx, l, r, d); }
+    void increase(ll l, ll r, ll d) { increase(1, mn, mx, l, r, d); }
+    ll query(ll l, ll r) { return query(1, mn, mx, l, r); }
+
+    inline void build(ll k, ll l, ll r, vector<ll> &v) {
+        if (l == r) { a[k] = {v[l]}; return; }
+        ll lc = k << 1, rc = lc | 1, m = (l + r) >> 1;
+        build(lc, l, m, v);
+        build(rc, m + 1, r, v);
+        pushup(k, lc, rc);
+    }
+    inline void replace(ll k, ll l, ll r, ll L, ll R, ll D) {
+        if (l == r) { a[k].sum = (r - l + 1) * D; return; }
+        ll lc = k << 1, rc = lc | 1, m = (l + r) >> 1;
+        if (m >= L) replace(lc, l, m, L, R, D);
+        if (m + 1 <= R) replace(rc, m + 1, r, L, R, D);
+        pushup(k, lc, rc);
+    }
+    inline void increase(ll k, ll l, ll r, ll L, ll R, ll D) {
+        if (l == r) { a[k].sum += (r - l + 1) * D; return; }
+        ll lc = k << 1, rc = lc | 1, m = (l + r) >> 1;
+        if (m >= L) increase(lc, l, m, L, R, D);
+        if (m + 1 <= R) increase(rc, m + 1, r, L, R, D);
+        pushup(k, lc, rc);
+    }
+    inline void pushup(ll k, ll lc, ll rc) {
+        a[k].sum = a[lc].sum + a[rc].sum;
+    }
+    inline ll query(ll k, ll l, ll r, ll L, ll R) {
+        if (L <= l && r <= R) return a[k].sum;
+        ll lc = k << 1, rc = lc | 1, m = (l + r) >> 1, ans = 0;
+        if (m >= L) ans += query(lc, l, m, L, R);
+        if (m + 1 <= R) ans += query(rc, m + 1, r, L, R);
+        return ans;
+    }
+};
+```
+
 ```cpp
 using ll = long long;
 
