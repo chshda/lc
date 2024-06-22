@@ -32,7 +32,7 @@ struct BIT {
 
     BIT(int n): n(n), c(n + 1) {}
 
-    void update(int i, int val = 1) { while (i < c.size()) c[i] += val, i += i & -i ; }        
+    void increase(int i, int val = 1) { while (i < c.size()) c[i] += val, i += i & -i ; }        
     int pre(int i) { int ans = 0; while (i) ans += c[i], i -= i & -i; return ans; };
     int query(int l, int r) { return pre(r) - pre(l - 1); }
     int suf(int i) { return query(i, n); };
