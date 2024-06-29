@@ -2613,3 +2613,141 @@ class Solution {
     }
 };
 ```
+
+## 第 403 场周赛
+
+### 3194. 最小元素和最大元素的最小平均值
+
+你有一个初始为空的浮点数数组 averages。另给你一个包含 n 个整数的数组 nums，其中 n 为偶数。
+
+你需要重复以下步骤 n / 2 次：
+
+* 从 nums 中移除 最小 的元素 minElement 和 最大 的元素 maxElement。
+* 将 (minElement + maxElement) / 2 加入到 averages 中。
+
+返回 averages 中的 最小 元素。
+
+```cpp
+class Solution {
+public:
+    double minimumAverage(vector<int>& nums) {
+        ranges::sort(nums);
+        int ans = INT_MAX;
+        for (int i = 0, j = nums.size()-1; i < j; i++, j--) ans = min(ans, nums[i] + nums[j]);
+        return ans / 2.0;
+    }
+};
+```
+
+### 3195. 包含所有 1 的最小矩形面积 I
+
+给你一个二维 二进制 数组 grid。请你找出一个边在水平方向和竖直方向上、面积 最小 的矩形，并且满足 grid 中所有的 1 都在矩形的内部。
+
+返回这个矩形可能的 最小 面积。
+
+```cpp
+class Solution {
+public:
+    int minimumArea(vector<vector<int>>& grid) {
+        int m = grid.size(), n = grid[0].size();
+        int x1 = m-1, x2 = 0, y1 = n-1, y2 = 0;
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (grid[i][j]) {
+                    x1 = min(x1, i), x2 = max(x2, i);
+                    y1 = min(y1, j), y2 = max(y2, j);
+                }
+            }
+        }
+        return (x2 - x1 + 1) * (y2 - y1 + 1);
+    }
+};
+```
+
+### 3196. 最大化子数组的总成本
+
+给你一个长度为 n 的整数数组 nums。
+
+子数组 nums[l..r]（其中 0 <= l <= r < n）的 成本 定义为：
+
+cost(l, r) = nums[l] - nums[l + 1] + ... + nums[r] * (−1)r − l
+
+你的任务是将 nums 分割成若干子数组，使得所有子数组的成本之和 最大化，并确保每个元素 正好 属于一个子数组。
+
+具体来说，如果 nums 被分割成 k 个子数组，且分割点为索引 i1, i2, ..., ik − 1（其中 0 <= i1 < i2 < ... < ik - 1 < n - 1），则总成本为：
+
+cost(0, i1) + cost(i1 + 1, i2) + ... + cost(ik − 1 + 1, n − 1)
+
+返回在最优分割方式下的子数组成本之和的最大值。
+
+注意：如果 nums 没有被分割，即 k = 1，则总成本即为 cost(0, n - 1)。
+
+```cpp
+// f[i]：[0,i]的最大成本
+// f[i] = max(a[i]+f[i-1], -a[i]+a[i-1]+f[i-2])，i从1开始
+// 但是f[i-2]下标会出现-1，把f的下标都往右加1，答案为f[n]
+class Solution {
+public:
+    long long maximumTotalCost(vector<int>& nums) {
+        int n = nums.size();
+        vector<long long> f(n+1);
+        f[1] = nums[0];
+        for (int i = 1; i < n; i++) {
+            f[i+1] = max(nums[i] + f[i], -nums[i] + nums[i-1] + f[i-1]);
+        }
+        return f[n];
+    }
+};
+```
+
+### 3197. 包含所有 1 的最小矩形面积 II
+
+给你一个二维 二进制 数组 grid。你需要找到 3 个 不重叠、面积 非零 、边在水平方向和竖直方向上的矩形，并且满足 grid 中所有的 1 都在这些矩形的内部。
+
+返回这些矩形面积之和的 最小 可能值。
+
+注意，这些矩形可以相接。
+
+```cpp
+// 枚举切割位置，枚举水平切割和竖直切割两种方式
+class Solution {
+public:
+    int f(int k, int x1, int x2, int y1, int y2, vector<vector<int>> &grid) {
+        int ans = INT_MAX >> 1;
+
+        if (k == 1) {
+            int mn1 = x2, mx1 = x1, mn2 = y2, mx2 = y1, found = 0;
+            for (int i = x1; i <= x2; i++) {
+                for (int j = y1; j <= y2; j++) {
+                    if (grid[i][j]) {
+                        found = 1;
+                        mn1 = min(mn1, i), mx1 = max(mx1, i);
+                        mn2 = min(mn2, j), mx2 = max(mx2, j);
+                    }
+                }
+            }
+            if (found) ans = (mx1 - mn1 + 1) * (mx2 - mn2 + 1);
+            return ans;            
+        }
+
+        for (int i = x1; i < x2; i++) {
+            for (int j = 1; j < k; j++) {
+                ans = min(ans, f(j, x1, i, y1, y2, grid) + f(k-j, i+1, x2, y1, y2, grid));
+            }
+            
+        }
+        for (int i = y1; i < y2; i++) {
+            for (int j = 1; j < k; j++) {
+                ans = min(ans, f(j, x1, x2, y1, i, grid) + f(k-j, x1, x2, i+1, y2, grid));
+            }
+        }
+
+        return ans;
+    }
+
+    int minimumSum(vector<vector<int>>& grid) {
+        int m = grid.size(), n = grid[0].size();
+        return f(3, 0, m-1, 0, n-1, grid);
+    }
+};
+```
