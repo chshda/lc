@@ -101,6 +101,36 @@ struct BIT {
 };
 ```
 
+## 树
+
+### 树的直径
+
+```cpp
+int diameter(vector<vector<int>> &edges) {
+    int n = edges.size() + 1;
+    vector<vector<int>> g(n);
+    for (auto &e : edges) {
+        int u = e[0], v = e[1];
+        g[u].push_back(v), g[v].push_back(u);
+    }
+
+    int ans = 0;
+    function<int(int, int)> dfs = [&](int x, int fa) -> int {
+        int mx = 0;
+        for (auto y : g[x]) {
+            if (y != fa) {
+                int sub = dfs(y, x) + 1;
+                ans = max(ans, mx + sub);
+                mx = max(mx, sub);
+            }
+        }
+        return mx;
+    };
+    dfs(0, -1);
+    return ans;
+}
+```
+
 ## 线段树
 
 线段树维护区间和，支持区间增加/减少和区间求和。静态开点。
