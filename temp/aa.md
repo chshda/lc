@@ -2980,3 +2980,112 @@ public:
     }
 };
 ```
+
+## 第 404 场周赛
+
+### 3200. 三角形的最大高度
+
+给你两个整数 red 和 blue，分别表示红色球和蓝色球的数量。你需要使用这些球来组成一个三角形，满足第 1 行有 1 个球，第 2 行有 2 个球，第 3 行有 3 个球，依此类推。
+
+每一行的球必须是 相同 颜色，且相邻行的颜色必须 不同。
+
+返回可以实现的三角形的 最大 高度。
+
+```cpp
+class Solution {
+public:
+    int maxHeightOfTriangle(int red, int blue) {
+        int odd = 0, even = 0;
+        for (int i = 1; ; i++) {
+            (i&1 ? odd : even) += i;
+            if ((odd > red || even > blue) && (odd > blue || even > red)) return i-1;
+        }
+        return 0;
+    }
+};
+```
+
+### 3201. 找出有效子序列的最大长度 I
+
+给你一个整数数组 nums。
+
+nums 的子序列 sub 的长度为 x ，如果其满足以下条件，则称其为 有效子序列：
+
+(sub[0] + sub[1]) % 2 == (sub[1] + sub[2]) % 2 == ... == (sub[x - 2] + sub[x - 1]) % 2
+返回 nums 的 最长的有效子序列 的长度。
+
+一个 子序列 指的是从原数组中删除一些元素（也可以不删除任何元素），剩余元素保持原来顺序组成的新数组。
+
+```cpp
+下一题的特殊情况。
+```
+
+### 3202. 找出有效子序列的最大长度 II
+
+给你一个整数数组 nums 和一个 正 整数 k 。nums 的一个 子序列 sub 的长度为 x ，如果其满足以下条件，则称其为 有效子序列 ：
+
+(sub[0] + sub[1]) % k == (sub[1] + sub[2]) % k == ... == (sub[x - 2] + sub[x - 1]) % k
+
+返回 nums 的 最长有效子序列 的长度。
+
+```cpp
+class Solution {
+public:
+    int maximumLength(vector<int>& nums, int k) {
+        int ans = 0;
+        for (int m = 0; m < k; m++) {            
+            vector<int> f(k);
+            for (auto i : nums) {
+                i %= k;
+                f[i] = 1 + f[(m - i + k) % k];
+                ans = max(ans, f[i]);
+            }
+        }
+        return ans;
+    }
+};
+```
+
+### 3203. 合并两棵树后的最小直径
+
+给你两棵 无向 树，分别有 n 和 m 个节点，节点编号分别为 0 到 n - 1 和 0 到 m - 1 。给你两个二维整数数组 edges1 和 edges2 ，长度分别为 n - 1 和 m - 1 ，其中 edges1[i] = [ai, bi] 表示在第一棵树中节点 ai 和 bi 之间有一条边，edges2[i] = [ui, vi] 表示在第二棵树中节点 ui 和 vi 之间有一条边。
+
+你必须在第一棵树和第二棵树中分别选一个节点，并用一条边连接它们。
+
+请你返回添加边后得到的树中，最小直径 为多少。
+
+一棵树的 直径 指的是树中任意两个节点之间的最长路径长度。
+
+```cpp
+int diameter(vector<vector<int>> &edges) {
+    int n = edges.size() + 1;
+    vector<vector<int>> g(n);
+    for (auto &e : edges) {
+        int u = e[0], v = e[1];
+        g[u].push_back(v), g[v].push_back(u);
+    }
+
+    int ans = 0;
+    function<int(int, int)> dfs = [&](int x, int fa) -> int {
+        int mx = 0;
+        for (auto y : g[x]) {
+            if (y != fa) {
+                int sub = dfs(y, x) + 1;
+                ans = max(ans, mx + sub);
+                mx = max(mx, sub);
+            }
+        }
+        return mx;
+    };
+    dfs(0, -1);
+    return ans;
+}
+
+class Solution {
+public:
+    int minimumDiameterAfterMerge(vector<vector<int>>& edges1, vector<vector<int>>& edges2) {
+        int d1 = diameter(edges1), d2 = diameter(edges2);
+        return max({d1, d2, (d1+1)/2 + (d2+1)/2 + 1});
+    }
+};
+```
