@@ -22,6 +22,68 @@ struct DC {
 };
 ```
 
+## 数学
+
+### 组合数
+
+mxn以内的组合数，对mod求模，mod为素数。
+
+```cpp
+using ll = long long;
+const int mxn = 2001, mod = 1e9 + 7;
+
+ll qpow(ll a, ll b, ll c) {
+    ll ans = 1;
+    for (; b; b >>= 1, a = a * a % c) if (b & 1) ans = ans * a % c;
+    return ans;
+}
+
+ll fac[mxn], inv_fac[mxn];
+
+auto init = []{
+    fac[0] = 1;
+    for (int i = 1; i < mxn; i++) fac[i] = fac[i-1] * i % mod;
+    inv_fac[mxn-1] = qpow(fac[mxn-1], mod - 2, mod);    
+    // 1/(i-1)! = 1/i! * i
+    for (int i = mxn-1; i > 0; i--) inv_fac[i-1] = inv_fac[i] * i % mod;
+    return 0;
+}();
+
+ll comb(ll n, ll k) { // C(n, k) = n! / (k! * (n-k)!);
+    return fac[n] * inv_fac[k] % mod * inv_fac[n-k] % mod;
+}
+```
+
+递推组合数求法，没有求模。需要开二维数组，mn复杂度
+
+```cpp
+int c[mxm+1][mxn+1]; // combination, C(n, k) = c[n][k]
+int init = [](){
+    c[0][0] = 1;
+    for (int i = 1; i <= mxm; i++) {
+        c[i][0] = 1;
+        for (int j = 1; j <= mxn; j++) c[i][j] = c[i-1][j-1] + c[i-1][j];
+    }
+    return 0;
+}();
+```
+
+直接公式求，o(n)复杂度求一次。
+
+```cpp
+long long comb(long long m, long long n) {
+    long long ans = 1;
+    for (long long x = m - n + 1, y = 1; y <= n; x++, y++) ans = ans * x / y;
+    return ans;
+}
+```
+
+python直接调用。
+
+```python
+comb(n, k)
+```
+
 ## 树状数组（binary index tree）
 
 树状数组，输入参数n位数组大小，范围为[1, n]（1-based），计算前缀、后缀和区间和。
@@ -361,26 +423,7 @@ int init = [](){
 ```
 
 **组合数**
-```cpp
-int c[mxm+1][mxn+1]; // combination, C(n, k) = c[n][k]
-int init = [](){
-    c[0][0] = 1;
-    for (int i = 1; i <= mxm; i++) {
-        c[i][0] = 1;
-        for (int j = 1; j <= mxn; j++) c[i][j] = c[i-1][j-1] + c[i-1][j];
-    }
-    return 0;
-}();
 
-long long comb(long long m, long long n) {
-    long long ans = 1;
-    for (long long x = m - n + 1, y = 1; y <= n; x++, y++) ans = ans * x / y;
-    return ans;
-}
-
-// python combination
-comb(m, n)
-```
 
 **最长上升子序列**
 ```cpp
