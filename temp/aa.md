@@ -2443,6 +2443,193 @@ public:
 };
 ```
 
+## 第 400 场周赛
+
+### 3168. 候诊室中的最少椅子数
+
+给你一个字符串 s，模拟每秒钟的事件 i：
+
+如果 s[i] == 'E'，表示有一位顾客进入候诊室并占用一把椅子。
+
+如果 s[i] == 'L'，表示有一位顾客离开候诊室，从而释放一把椅子。
+
+返回保证每位进入候诊室的顾客都能有椅子坐的 最少 椅子数，假设候诊室最初是 空的 。
+
+```cpp
+class Solution {
+public:
+    int minimumChairs(string s) {
+        int ans = 0, cur = 0;
+        for (auto i : s) cur += i == 'E' ? 1 : -1, ans = max(ans, cur);
+        return ans;
+    }
+};
+```
+
+### 3169. 无需开会的工作日
+
+给你一个正整数 days，表示员工可工作的总天数（从第 1 天开始）。另给你一个二维数组 meetings，长度为 n，其中 meetings[i] = [start_i, end_i] 表示第 i 次会议的开始和结束天数（包含首尾）。
+
+返回员工可工作且没有安排会议的天数。
+
+注意：会议时间可能会有重叠。
+
+```cpp
+class Solution {
+public:
+    int countDays(int days, vector<vector<int>>& a) {
+        ranges::sort(a);
+        int st = 0, ed = -1;
+        for (auto & i : a) {
+            int u = i[0], v = i[1];
+            if (u <= ed) ed = max(ed, v);
+            else days -= ed - st + 1, st = u, ed = v;
+        }
+        days -= ed - st + 1;
+        return days;
+    }
+};
+```
+
+### 3170. 删除星号以后字典序最小的字符串
+
+给你一个字符串 s 。它可能包含任意数量的 '*' 字符。你的任务是删除所有的 '*' 字符。
+
+当字符串还存在至少一个 '*' 字符时，你可以执行以下操作：
+
+删除最左边的 '*' 字符，同时删除该星号字符左边一个字典序 最小 的字符。如果有多个字典序最小的字符，你可以删除它们中的任意一个。
+
+请你返回删除所有 '*' 字符以后，剩余字符连接而成的 字典序最小 的字符串。
+
+```cpp
+class Solution {
+public:
+    string clearStars(string s) {
+        int n = s.size();
+        bool del[n]; memset(del, 0, sizeof(del));
+        vector<vector<int>> ids(26);
+        for (int i = 0; i < n; i++) {
+            if (s[i] == '*') {
+                for (auto &v : ids) {
+                    if (!v.empty()) {
+                        del[v.back()] = true; v.pop_back();
+                        break;
+                    }
+                }
+            } else {
+                ids[s[i]-'a'].push_back(i);
+            }
+        }        
+        string ans;
+        for (int i = 0; i < n; i++) if (s[i] != '*' && !del[i]) ans.push_back(s[i]);
+        return ans;
+    }
+};
+```
+
+### 3171. 找到按位或最接近 K 的子数组
+
+给你一个数组 nums 和一个整数 k 。你需要找到 nums 的一个 子数组 ，满足子数组中所有元素按位或运算 OR 的值与 k 的 绝对差 尽可能 小 。换言之，你需要选择一个子数组 nums[l..r] 满足 |k - (nums[l] OR nums[l + 1] ... OR nums[r])| 最小。
+
+请你返回 最小 的绝对差值。
+
+子数组 是数组中连续的 非空 元素序列。
+
+```cpp
+// 枚举。枚举子数组的终点，对于这个终点，其所有起点对应的或值数量最多只有32个
+// 因为每或多一个数字，结果要么不变，要么二进制增加几位1，二进制最多有32位，于是最多有32种可能值。
+class Solution {
+public:
+    int minimumDifference(vector<int>& nums, int k) {
+        int ans = INT_MAX;
+        set<int> s;
+        for (auto i : nums) {
+            vector<int> v ({i});
+            for (auto j : s) v.push_back(j | i);
+            s.clear();
+            for (auto j : v) s.insert(j), ans = min(ans, abs(j - k));
+        }
+        return ans;
+    }
+};
+```
+
+
+## 第 401 场周赛
+
+### 3178. 找出 K 秒后拿着球的孩子
+
+给你两个 正整数 n 和 k。有 n 个编号从 0 到 n - 1 的孩子按顺序从左到右站成一队。
+
+最初，编号为 0 的孩子拿着一个球，并且向右传球。每过一秒，拿着球的孩子就会将球传给他旁边的孩子。一旦球到达队列的 任一端 ，即编号为 0 的孩子或编号为 n - 1 的孩子处，传球方向就会 反转 。
+
+返回 k 秒后接到球的孩子的编号。
+
+```cpp
+class Solution {
+public:
+    int numberOfChild(int n, int k) {
+        int t = k % (n - 1);
+        return k / (n - 1) % 2 ? n - 1 - t : t;
+    }
+};
+```
+
+### 3179. K 秒后第 N 个元素的值
+
+给你两个整数 n 和 k。
+
+最初，你有一个长度为 n 的整数数组 a，对所有 0 <= i <= n - 1，都有 a[i] = 1 。每过一秒，你会同时更新每个元素为其前面所有元素的和加上该元素本身。例如，一秒后，a[0] 保持不变，a[1] 变为 a[0] + a[1]，a[2] 变为 a[0] + a[1] + a[2]，以此类推。
+
+返回 k 秒后 a[n - 1] 的值。
+
+由于答案可能非常大，返回其对 109 + 7 取余 后的结果。
+
+```cpp
+using ll = long long;
+const int mxn = 2001, mod = 1e9 + 7;
+
+ll qpow(ll a, ll b, ll c) {
+    ll ans = 1;
+    for (; b; b >>= 1, a = a * a % c) if (b & 1) ans = ans * a % c;
+    return ans;
+}
+
+ll fac[mxn], inv_fac[mxn];
+
+auto init = []{
+    fac[0] = 1;
+    for (int i = 1; i < mxn; i++) fac[i] = fac[i-1] * i % mod;
+    inv_fac[mxn-1] = qpow(fac[mxn-1], mod - 2, mod);    
+    // 1/(i-1)! = 1/i! * i
+    for (int i = mxn-1; i > 0; i--) inv_fac[i-1] = inv_fac[i] * i % mod;
+    return 0;
+}();
+
+ll comb(ll n, ll k) { // C(n, k) = n! / (k! * (n-k)!);
+    return fac[n] * inv_fac[k] % mod * inv_fac[n-k] % mod;
+}
+
+class Solution {
+public:
+    int valueAfterKSeconds(int n, int k) {
+        return comb(n+k-1, k);
+    }
+};
+```
+
+### 3180. 执行操作可获得的最大总奖励 I
+
+给你一个整数数组 rewardValues，长度为 n，代表奖励的值。
+
+最初，你的总奖励 x 为 0，所有下标都是 未标记 的。你可以执行以下操作 任意次 ：
+
+从区间 [0, n - 1] 中选择一个 未标记 的下标 i。
+如果 rewardValues[i] 大于 你当前的总奖励 x，则将 rewardValues[i] 加到 x 上（即 x = x + rewardValues[i]），并 标记 下标 i。
+以整数形式返回执行最优操作能够获得的 最大 总奖励。
+
+ 
+
 
 
 ## 第 402 场周赛
