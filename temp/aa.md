@@ -2629,7 +2629,21 @@ public:
 以整数形式返回执行最优操作能够获得的 最大 总奖励。
 
 ```cpp
-见3181。
+// f[i][j] = f[i-1][j] | f[i-1][j-v] j = [v, 2v)
+class Solution {
+public:
+    int maxTotalReward(vector<int>& a) {        
+        ranges::sort(a);
+        a.erase(unique(a.begin(), a.end()), a.end());
+        vector<int> f(4000+10);
+        f[0] = 1;
+        for (auto i : a) {
+            for (int j = 2 * i - 1; j >= i; j--) f[j] |= f[j-i];
+        }
+        for (int i = f.size()-1; i >= 0; i--) if (f[i]) return i;
+        return -1;
+    }
+}; 
 ```
 
 ### 3181. 执行操作可获得的最大总奖励 II
