@@ -2628,7 +2628,35 @@ public:
 如果 rewardValues[i] 大于 你当前的总奖励 x，则将 rewardValues[i] 加到 x 上（即 x = x + rewardValues[i]），并 标记 下标 i。
 以整数形式返回执行最优操作能够获得的 最大 总奖励。
 
- 
+```cpp
+见3181。
+```
+
+### 3181. 执行操作可获得的最大总奖励 II
+
+同上，但是范围更大。
+
+```cpp
+// f[i][j] = f[i-1][j] | f[i-1][j-v], j-v >= 0 && j-v < v
+// 把f第一维优化掉，使用bitset表示
+// 计算f[i]时，把f[i-1]的[0, v) 之间的值向左移动v位再与原bitset或起来
+// j的上限是什么，2*mx-1
+class Solution {
+public:
+    int maxTotalReward(vector<int>& a) {
+        ranges::sort(a);
+        a.erase(unique(a.begin(), a.end()), a.end());
+        int n = a.size();
+        bitset<100000+10> f(1);
+        for (auto v : a) {
+            int d = f.size() - v;
+            f |= f << d >> d << v;
+        }
+        for (int i = f.size()-1; i >= 0; i--) if (f.test(i)) return i;
+        return -1;
+    }
+};
+```
 
 
 
