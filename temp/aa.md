@@ -30,13 +30,13 @@ public:
         string s1 = s.substr(0, n), s2 = s.substr(n);
         reverse(s2.begin(), s2.end());
 
-        vector<vector<int>> pre1(n+1, vector<int>(26));
+        vector<vector<int>> pre1(n+1, vector<int>(26)); // 统计每个字母个数的前缀和 前i位中字母j出现的次数
         for (int i = 0; i < n; i++) pre1[i+1] = pre1[i], pre1[i+1][s1[i]-'a']++;
 
         vector<vector<int>> pre2(n+1, vector<int>(26));
         for (int i = 0; i < n; i++) pre2[i+1] = pre2[i], pre2[i+1][s2[i]-'a']++;
 
-        vector<int> pre(n+1);
+        vector<int> pre(n+1); // 统计不相等字母个数的前缀和
         for (int i = 0; i < n; i++) pre[i+1] = pre[i] + (s1[i] != s2[i]);
 
         auto count = [&](int l, int r, vector<vector<int>> &pre) {
@@ -60,17 +60,20 @@ public:
             if (pre[l1-1+1] - pre[0] > 0 || pre[n-1+1] - pre[max(r1, r2)+1] > 0) return false;
 
             if (l2 <= r1) {
-                if (r2 <= r1) { // 包含 l1 l2 r2 r1
+                if (r2 <= r1) { // 包含 l1 l2 r2 r1，只要s1包含s2即可重排得到回文串
                     return count(l1, r1, pre1) == count(l1, r1, pre2);
                 } else { // 相交 l1 l2 r1 r2
                     // [l1,            r1][r1+1,  r2]
                     // [l1,  l2-1] [l2            r2]
+                    // l1,r1这个大段包含l1,l2-1这个小段的所有的字母
+                    // l2,r2这个大段包含r1+1，r2这个小段的所有字母
+                    // 并且相减后剩下的字母个数vector一致即可
                     auto a1 = subtract(count(l1, r1, pre1), count(l1, l2-1, pre2));
                     auto a2 = subtract(count(l2, r2, pre2), count(r1+1, r2, pre1));
                     return !a1.empty() && !a2.empty() && a1 == a2;
                 }
 
-            } else { // 不相交, l1, r1, l2, r2
+            } else { // 不相交, l1, r1, l2, r2 // 只要中间段一一对应 前后字母统计个数相同即可
                 // [r1+1, l2-1]
                 if (pre[l2-1+1] - pre[r1+1] != 0) return false;
                 // [l1, r1], [l2, r2]
