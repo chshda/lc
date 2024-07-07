@@ -1,5 +1,94 @@
 # 题解
 
+## 第 378 场周赛
+
+### 2983. 回文串重新排列查询
+
+给你一个长度为 偶数 n ，下标从 0 开始的字符串 s 。
+
+同时给你一个下标从 0 开始的二维整数数组 queries ，其中 queries[i] = [ai, bi, ci, di] 。
+
+对于每个查询 i ，你需要执行以下操作：
+
+* 将下标在范围 0 <= ai <= bi < n / 2 内的 子字符串 s[ai:bi] 中的字符重新排列。
+* 将下标在范围 n / 2 <= ci <= di < n 内的 子字符串 s[ci:di] 中的字符重新排列。
+
+对于每个查询，你的任务是判断执行操作后能否让 s 变成一个 回文串 。
+
+每个查询与其他查询都是 独立的 。
+
+请你返回一个下标从 0 开始的数组 answer ，如果第 i 个查询执行操作后，可以将 s 变为一个回文串，那么 answer[i] = true，否则为 false 。
+
+子字符串 指的是一个字符串中一段连续的字符序列。s[x:y] 表示 s 中从下标 x 到 y 且两个端点 都包含 的子字符串。
+
+```cpp
+// 分类讨论
+class Solution {
+public:
+    vector<bool> canMakePalindromeQueries(string s, vector<vector<int>>& queries) {
+        int m = s.size(), n = m / 2;
+        string s1 = s.substr(0, n), s2 = s.substr(n);
+        reverse(s2.begin(), s2.end());
+
+        vector<vector<int>> pre1(n+1, vector<int>(26));
+        for (int i = 0; i < n; i++) pre1[i+1] = pre1[i], pre1[i+1][s1[i]-'a']++;
+
+        vector<vector<int>> pre2(n+1, vector<int>(26));
+        for (int i = 0; i < n; i++) pre2[i+1] = pre2[i], pre2[i+1][s2[i]-'a']++;
+
+        vector<int> pre(n+1);
+        for (int i = 0; i < n; i++) pre[i+1] = pre[i] + (s1[i] != s2[i]);
+
+        auto count = [&](int l, int r, vector<vector<int>> &pre) {
+            auto ans = pre[r+1]; // - pre[l]
+            for (int i = 0; i < 26; i++) ans[i] -= pre[l][i];
+            return ans;
+        };
+
+        auto subtract = [&](vector<int> a1, vector<int> a2) -> vector<int> {
+            auto ans = a1;
+            for (int i = 0; i < a1.size(); i++) {
+                ans[i] -= a2[i];
+                if (ans[i] < 0) return {};
+            }
+            return ans;
+        };
+
+        auto check = [&](int l1, int r1, int l2, int r2, vector<vector<int>> &pre1, vector<vector<int>> &pre2) {
+            // [0, l1-1], [max(r1, r2)+1, n-1]
+            cout << l1 << " " << r1 << " " << l2 << " " << r2 << endl;
+            if (pre[l1-1+1] - pre[0] > 0 || pre[n-1+1] - pre[max(r1, r2)+1] > 0) return false;
+
+            if (l2 <= r1) {
+                if (r2 <= r1) { // 包含 l1 l2 r2 r1
+                    return count(l1, r1, pre1) == count(l1, r1, pre2);
+                } else { // 相交 l1 l2 r1 r2
+                    // [l1,            r1][r1+1,  r2]
+                    // [l1,  l2-1] [l2            r2]
+                    auto a1 = subtract(count(l1, r1, pre1), count(l1, l2-1, pre2));
+                    auto a2 = subtract(count(l2, r2, pre2), count(r1+1, r2, pre1));
+                    return !a1.empty() && !a2.empty() && a1 == a2;
+                }
+
+            } else { // 不相交, l1, r1, l2, r2
+                // [r1+1, l2-1]
+                if (pre[l2-1+1] - pre[r1+1] != 0) return false;
+                // [l1, r1], [l2, r2]
+                return count(l1, r1, pre1) == count(l1, r1, pre2) && count(l2, r2, pre1) == count(l2, r2, pre2);
+            }
+        };
+
+        vector<bool> ans;
+        for (auto &q : queries) {
+            int l1 = q[0], r1 = q[1], l20 = q[2], r20 = q[3];
+            int l2 = m - 1 - r20, r2 = m - 1 - l20;
+            ans.push_back(l1 <= l2 ? check(l1, r1, l2, r2, pre1, pre2) : check(l2, r2, l1, r1, pre2, pre1));               
+        }
+        return ans;
+    }
+};
+```
+
 ## 第 381 场周赛
 
 ### 3014. 输入单词需要的最少按键次数 I

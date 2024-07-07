@@ -22,6 +22,20 @@ struct DC {
 };
 ```
 
+```cpp
+struct PS {
+    ll n; vector<ll> s;
+    
+    PS (vector<ll> v) : n(v.size()) {
+        s.resize(n + 1);
+        s[0] = 0;
+        for (int i = 0; i < n; i++) s[i+1] = s[i] + v[i];
+    }
+
+    ll sum(int st, int ed) { return s[ed+1] - s[st]; } // [st, ed]    
+};
+```
+
 ## 数学
 
 ### 组合数
