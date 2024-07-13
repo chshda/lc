@@ -92,6 +92,66 @@ public:
 };
 ```
 
+## 第 379 场周赛
+
+### 3003. 执行操作后的最大分割数量
+
+给你一个下标从 0 开始的字符串 s 和一个整数 k。
+
+你需要执行以下分割操作，直到字符串 s 变为 空：
+
+* 选择 s 的最长 前缀，该前缀最多包含 k 个 不同 字符。
+* 删除 这个前缀，并将分割数量加一。如果有剩余字符，它们在 s 中保持原来的顺序。
+
+执行操作之 前 ，你可以将 s 中 至多一处 下标的对应字符更改为另一个小写英文字母。
+
+在最优选择情形下改变至多一处下标对应字符后，用整数表示并返回操作结束时得到的 最大 分割数量。
+
+```cpp
+using ll = long long;
+class Solution {
+public:
+    string s;
+    int k;
+    unordered_map<ll, int> mm;
+
+    // 到达第i个位置，之前的是mask和changed
+    int dfs(int i, int mask, int changed) {
+        if (i == s.size()) return 1;
+
+        ll key = (ll)i << 32 | (ll) mask << 1 | changed;
+        if (mm.contains(key)) return mm[key];
+
+        int ans;
+        int bit = (1 << (s[i] - 'a'));
+        int new_mask = mask | bit;
+        if (__builtin_popcount(new_mask) > k) {
+            ans = dfs(i+1, bit, changed) + 1;
+        } else {
+            ans = dfs(i+1, new_mask, changed);
+        }
+
+        if (!changed) {
+            for (int j = 0; j < 26; j++) {
+                int new_mask = mask | (1 << j);
+                if (__builtin_popcount(new_mask) > k) {
+                    ans = max(ans, dfs(i+1, 1<<j, 1) + 1);
+                } else {
+                    ans = max(ans, dfs(i+1, new_mask, 1));
+                }
+            }
+        }
+        return mm[key] = ans;
+    }
+
+    int maxPartitionsAfterOperations(string ss, int kk) {
+        s = ss, k = kk;
+        mm.clear();
+        return dfs(0, 0, 0);
+    }
+};
+```
+
 ## 第 380 场周赛
 
 ### 3008. 找出数组中的美丽下标 II
