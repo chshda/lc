@@ -92,6 +92,76 @@ public:
 };
 ```
 
+## 第 380 场周赛
+
+### 3008. 找出数组中的美丽下标 II
+
+给你一个下标从 0 开始的字符串 s 、字符串 a 、字符串 b 和一个整数 k 。
+
+如果下标 i 满足以下条件，则认为它是一个 美丽下标 ：
+
+* 0 <= i <= s.length - a.length
+* s[i..(i + a.length - 1)] == a
+
+存在下标 j 使得：
+
+* 0 <= j <= s.length - b.length
+* s[j..(j + b.length - 1)] == b
+* |j - i| <= k
+
+以数组形式按 从小到大排序 返回美丽下标。
+
+```cpp
+vector<int> kmp(string &text, string &pattern) {
+    int m = pattern.length();
+    vector<int> pi(m);
+    int c = 0;
+    for (int i = 1; i < m; i++) {
+        char v = pattern[i];
+        while (c && pattern[c] != v) {
+            c = pi[c - 1];
+        }
+        if (pattern[c] == v) {
+            c++;
+        }
+        pi[i] = c;
+    }
+
+    vector<int> res;
+    c = 0;
+    for (int i = 0; i < text.length(); i++) {
+        char v = text[i];
+        while (c && pattern[c] != v) {
+            c = pi[c - 1];
+        }
+        if (pattern[c] == v) {
+            c++;
+        }
+        if (c == m) {
+            res.push_back(i - m + 1);
+            c = pi[c - 1];
+        }
+    }
+    return res;
+}
+
+class Solution {
+public:
+    vector<int> beautifulIndices(string s, string a, string b, int k) {
+        auto v1 = kmp(s, a);
+        auto v2 = kmp(s, b);
+        vector<int> ans;
+        int j = 0, m = v2.size();
+        for (auto i : v1) {
+            while (j < m && v2[j] < i - k) j++;
+            if (j < m && v2[j] <= i + k) ans.push_back(i);
+        }
+        return ans;        
+    }
+};
+```
+
+
 ## 第 381 场周赛
 
 ### 3014. 输入单词需要的最少按键次数 I
