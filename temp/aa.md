@@ -1,5 +1,52 @@
 # 题解
 
+## 第 376 场周赛
+
+### 2968. 执行操作使频率分数最大
+
+给你一个下标从 0 开始的整数数组 nums 和一个整数 k 。
+
+你可以对数组执行 至多 k 次操作：
+
+从数组中选择一个下标 i ，将 nums[i] 增加 或者 减少 1 。
+
+最终数组的频率分数定义为数组中众数的 频率 。
+
+请你返回你可以得到的 最大 频率分数。
+
+众数指的是数组中出现次数最多的数。一个元素的频率指的是数组中这个元素的出现次数。
+
+
+```cpp
+class Solution {
+public:
+    int maxFrequencyScore(vector<int>& nums, long long k) {
+        int n = nums.size(), st = 1, ed = n;
+
+        ranges::sort(nums);
+        vector<long long> pre(n + 1);
+        for (int i = 0; i < n; i++) pre[i+1] = pre[i] + nums[i];
+
+        auto ok = [&](int x) {
+            for (int i = x-1; i < n; i++) {
+                int st = i - (x - 1), ed = i;
+                int md = (st + ed) >> 1;
+                long long need = (md - st + 1LL) * nums[md] - (pre[md+1] - pre[st]) + (pre[ed+1] - pre[md]) - (ed - md + 1LL) * nums[md];
+                if (need <= k) return true;
+            }
+            return false;
+        };
+
+        while (st < ed) {
+            int md = (st + ed + 1) >> 1;
+            if (ok(md)) st = md;
+            else ed = md - 1;
+        }
+        return st;
+    }
+};
+```
+
 ## 第 377 场周赛
 
 ### 2977. 转换字符串的最小成本 II
