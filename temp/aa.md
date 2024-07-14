@@ -1,5 +1,38 @@
 # 题解
 
+## 第 375 场周赛
+
+### 2963. 统计好分割方案的数目
+
+给你一个下标从 0 开始、由 正整数 组成的数组 nums。
+
+将数组分割成一个或多个 连续 子数组，如果不存在包含了相同数字的两个子数组，则认为是一种 好分割方案 。
+
+返回 nums 的 好分割方案 的 数目。
+
+由于答案可能很大，请返回答案对 109 + 7 取余 的结果。
+
+```cpp
+// 2 ^ (m-1)
+static const int mod = 1e9 + 7;
+class Solution {
+public:
+    int numberOfGoodPartitions(vector<int>& nums) {
+        unordered_map<int, int> r;
+        for (int i = 0; i < nums.size(); i++) r[nums[i]] = i;
+
+        int cnt = 0;
+        for (int i = 0, j = 0; i < nums.size(); i++) {
+            j = max(j, r[nums[i]]);
+            if (i == j) cnt++;
+        }
+        long long ans = 1;
+        while (--cnt) ans = ans * 2 % mod;
+        return ans;
+    }
+};
+```
+
 ## 第 376 场周赛
 
 ### 2968. 执行操作使频率分数最大
