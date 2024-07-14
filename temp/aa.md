@@ -1,5 +1,24 @@
 # 题解
 
+## 第 377 场周赛
+
+### 2977. 转换字符串的最小成本 II
+
+给你两个下标从 0 开始的字符串 source 和 target ，它们的长度均为 n 并且由 小写 英文字母组成。
+
+另给你两个下标从 0 开始的字符串数组 original 和 changed ，以及一个整数数组 cost ，其中 cost[i] 代表将字符串 original[i] 更改为字符串 changed[i] 的成本。
+
+你从字符串 source 开始。在一次操作中，如果 存在 任意 下标 j 满足 cost[j] == z  、original[j] == x 以及 changed[j] == y ，你就可以选择字符串中的 子串 x 并以 z 的成本将其更改为 y 。 你可以执行 任意数量 的操作，但是任两次操作必须满足 以下两个 条件 之一 ：
+
+* 在两次操作中选择的子串分别是 source[a..b] 和 source[c..d] ，满足 b < c  或 d < a 。换句话说，两次操作中选择的下标 不相交 。
+* 在两次操作中选择的子串分别是 source[a..b] 和 source[c..d] ，满足 a == c 且 b == d 。换句话说，两次操作中选择的下标 相同 。
+
+返回将字符串 source 转换为字符串 target 所需的 最小 成本。如果不可能完成转换，则返回 -1 。
+
+注意，可能存在下标 i 、j 使得 original[j] == original[i] 且 changed[j] == changed[i] 。
+
+
+
 ## 第 378 场周赛
 
 ### 2983. 回文串重新排列查询
@@ -3308,6 +3327,46 @@ public:
     int minimumDiameterAfterMerge(vector<vector<int>>& edges1, vector<vector<int>>& edges2) {
         int d1 = diameter(edges1), d2 = diameter(edges2);
         return max({d1, d2, (d1+1)/2 + (d2+1)/2 + 1});
+    }
+};
+```
+
+## 第 406 场周赛
+
+### 100367. 切蛋糕的最小总开销 II
+
+有一个 m x n 大小的矩形蛋糕，需要切成 1 x 1 的小块。
+
+给你整数 m ，n 和两个数组：
+
+* horizontalCut 的大小为 m - 1 ，其中 horizontalCut[i] 表示沿着水平线 i 切蛋糕的开销。
+* verticalCut 的大小为 n - 1 ，其中 verticalCut[j] 表示沿着垂直线 j 切蛋糕的开销。
+
+一次操作中，你可以选择任意不是 1 x 1 大小的矩形蛋糕并执行以下操作之一：
+
+* 沿着水平线 i 切开蛋糕，开销为 horizontalCut[i] 。
+* 沿着垂直线 j 切开蛋糕，开销为 verticalCut[j] 。
+
+每次操作后，这块蛋糕都被切成两个独立的小蛋糕。
+
+每次操作的开销都为最开始对应切割线的开销，并且不会改变。
+
+请你返回将蛋糕全部切成 1 x 1 的蛋糕块的 最小 总开销。
+
+```cpp
+class Solution {
+public:
+    long long minimumCost(int m, int n, vector<int>& horizontalCut, vector<int>& verticalCut) {
+        vector<pair<int, int>> v;
+        for (auto i : horizontalCut) v.emplace_back(i, 0);
+        for (auto i : verticalCut) v.emplace_back(i, 1);
+        ranges::sort(v, greater<>());
+        long long ans = 0, c0 = 1, c1 = 1;
+        for (auto &[x, y] : v) {
+            if (y == 0) ans += (long long)x * c1, c0++;
+            else ans += (long long)x * c0, c1++;
+        }
+        return ans;
     }
 };
 ```
