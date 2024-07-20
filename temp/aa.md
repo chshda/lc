@@ -2908,7 +2908,7 @@ public:
 
 ```cpp
 using ll = long long;
-const int mxn = 2001, mod = 1e9 + 7;
+const int mxn = 1e5 + 10, mod = 1e9 + 7;
 
 ll qpow(ll a, ll b, ll c) {
     ll ans = 1;
@@ -2930,13 +2930,6 @@ auto init = []{
 ll comb(ll n, ll k) { // C(n, k) = n! / (k! * (n-k)!);
     return fac[n] * inv_fac[k] % mod * inv_fac[n-k] % mod;
 }
-
-class Solution {
-public:
-    int valueAfterKSeconds(int n, int k) {
-        return comb(n+k-1, k);
-    }
-};
 ```
 
 ### 3180. 执行操作可获得的最大总奖励 I
